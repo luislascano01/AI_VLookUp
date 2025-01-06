@@ -10,24 +10,25 @@ public class Dataframe {
     private final List<Map<String, String>> data;
 
     /**
-     * Constructor initializes an empty dataframe.
+     * Constructor initializes an empty data frame.
      */
     public Dataframe() {
         this.data = new ArrayList<>();
     }
 
     /**
-     * Loads data from an Excel sheet into the Dataframe.
+     * Loads data from an Excel sheet into the Data frame.
      *
      * @param filePath    Path to the Excel file.
      * @param sheetName   Name of the sheet to load.
      * @param columnLabels List of column labels to include.
      * @throws IOException If there is an issue reading the file.
-     */
+     */	
     public void loadFromExcel(String filePath, String sheetName, List<String> columnLabels) throws IOException {
         // Load the Excel file
         FileInputStream fileInputStream = new FileInputStream(filePath);
-        Workbook workbook = new XSSFWorkbook(fileInputStream);
+        @SuppressWarnings("resource")
+		Workbook workbook = new XSSFWorkbook(fileInputStream);
         Sheet sheet = workbook.getSheet(sheetName);
 
         if (sheet == null) {
