@@ -1,0 +1,101 @@
+Customer ID,Customer Name,Customer Address,Customer Industrial Sector
+1,Acme Corporation,"123 Elm St, Springfield, IL",Manufacturing
+2,Globex Corporation,"456 Oak St, Metropolis, IN",Technology
+3,Soylent Corp,"789 Pine St, Gotham, NY",Food and Beverages
+4,Initech,"101 Maple Ave, Smallville, KS",Software
+5,Bluth Company,"102 Birch St, Hill Valley, CA",Real Estate
+6,Umbrella Corp,"103 Cedar St, Sunnydale, CA",Pharmaceuticals
+7,Hooli,"104 Palm St, Atlantis, FL",Technology
+8,Vehement Capital,"105 Spruce St, Vice City, FL",Finance
+9,Massive Dynamic,"106 Iron St, Star City, WA",Biotechnology
+10,Wonka Industries,"107 Steel St, South Park, CO",Food Processing
+11,Stark Industries,"108 Silver St, Central City, MO",Advanced Technology
+12,Wayne Enterprises,"109 Gold St, Emerald City, MI",Conglomerate
+13,Duff Brewing,"110 Copper St, Kings Landing, CA",Beverages
+14,Gekko & Co,"111 Zinc St, Springfield, VT",Finance
+15,Vandelay Industries,"112 Quartz St, Quahog, RI",Latex Manufacturing
+16,Kwik-E-Mart,"113 Cobalt St, Twin Peaks, WA",Retail
+17,Reynholm Industries,"114 Nickel St, Charming, CA",IT Services
+18,Kruger Industrial,"115 Tin St, Eureka, NV",Smelting
+19,Strickland Propane,"116 Lead St, Neptune, CA",Propane and Propane Accessories
+20,Gringotts,"117 Mercury St, Gotham, NJ",Banking
+21,Oscorp,"118 Platinum St, Metropolis, TX",Chemicals
+22,Choam,"119 Diamond St, Pandora, AZ",Trade
+23,Sirius Cybernetics,"120 Graphite St, Bon Temps, LA",Robotics
+24,Harlington-Straker,"121 Silicon St, Silent Hill, ME",Film Studio
+25,Nakatomi Trading,"122 Boron St, Cabot Cove, ME",Import/Export
+26,Tyrell Corporation,"123 Argon St, Mystic Falls, VA",Biotech
+27,Cyberdyne Systems,"124 Neon St, Twin Peaks, NV",Defense
+28,Planet Express,"125 Helium St, New New York, NY",Delivery Services
+29,Soylent Corporation,"126 Lithium St, Twin Peaks, WA",Food Production
+30,Pierce & Pierce,"127 Krypton St, Smallville, TX",Investment Banking
+31,Google LLC,"1600 Amphitheatre Parkway, Mountain View, CA",Technology
+32,Apple Inc.,"1 Apple Park Way, Cupertino, CA",Technology
+33,Microsoft Corporation,"One Microsoft Way, Redmond, WA",Technology
+34,"Amazon.com, Inc.","410 Terry Ave N, Seattle, WA",E-commerce
+35,"Facebook, Inc.","1 Hacker Way, Menlo Park, CA",Social Media
+36,"Tesla, Inc.","3500 Deer Creek Road, Palo Alto, CA",Automotive
+37,Berkshire Hathaway Inc.,"3555 Farnam St, Omaha, NE",Conglomerate
+38,Visa Inc.,"900 Metro Center Blvd, Foster City, CA",Financial Services
+39,Johnson & Johnson,"One Johnson & Johnson Plaza, New Brunswick, NJ",Pharmaceuticals
+40,Samsung Electronics,"129 Samsung-Ro, Yeongtong-Gu, Suwon-si, South Korea",Electronics
+41,ExxonMobil Corporation,"5959 Las Colinas Boulevard, Irving, TX",Oil and Gas
+42,Walmart Inc.,"702 SW 8th St, Bentonville, AR",Retail
+43,Pfizer Inc.,"235 East 42nd Street, New York, NY",Pharmaceuticals
+44,Chevron Corporation,"6001 Bollinger Canyon Rd, San Ramon, CA",Oil and Gas
+45,Coca-Cola Company,"1 Coca Cola Plaza, Atlanta, GA",Beverages
+46,Toyota Motor Corporation,"1 Toyota-Cho, Toyota City, Japan",Automotive
+47,Daimler AG,"Mercedesstrasse 120, Stuttgart, Germany",Automotive
+48,Intel Corporation,"2200 Mission College Blvd, Santa Clara, CA",Semiconductors
+49,Verizon Communications,"1095 Avenue of the Americas, New York, NY",Telecommunications
+50,Boeing Company,"100 N Riverside Plaza, Chicago, IL",Aerospace and Defense
+51,Oracle Corporation,"500 Oracle Parkway, Redwood City, CA",Technology
+52,"Nike, Inc.","One Bowerman Drive, Beaverton, OR",Apparel
+53,Sony Corporation,"1-7-1 Konan, Minato-ku, Tokyo, Japan",Electronics
+54,LG Electronics Inc.,"20 Yeouido-dong, Yeongdeungpo-gu, Seoul, South Korea",Electronics
+55,Royal Dutch Shell plc,"Carel van Bylandtlaan 16, The Hague, Netherlands",Oil and Gas
+56,BP plc,"1 St James's Square, London, UK",Oil and Gas
+57,General Electric Company,"5 Necco St, Boston, MA",Conglomerate
+58,Honeywell International,"300 South Tryon Street, Charlotte, NC",Conglomerate
+59,Citigroup Inc.,"388 Greenwich St, New York, NY",Financial Services
+60,American Express Company,"200 Vesey St, New York, NY",Financial Services
+61,Petrobras,"Avenida Republica do Chile, 65, Rio de Janeiro, Brazil",Oil and Gas
+62,America Movil,"Lago Zurich 245, Plaza Carso, Mexico City, Mexico",Telecommunications
+63,Vale S.A.,"Praia de Botafogo, 186, Rio de Janeiro, Brazil",Mining
+64,Itau Unibanco Holding,"Praca Alfredo Egydio de Souza Aranha, 100, Sao Paulo, Brazil",Banking
+65,MercadoLibre,"Arias 3751, Buenos Aires, Argentina",E-commerce
+66,Grupo Bimbo,"Prolongacion Paseo de la Reforma 1000, Mexico City, Mexico",Food Processing
+67,Bancolombia,"Carrera 48 # 26-85, Medellin, Colombia",Financial Services
+68,Grupo Mexico,"Campos Eliseos 400, Lomas de Chapultepec, Mexico City, Mexico",Conglomerate
+69,Embraer S.A.,"Av. Brig. Faria Lima, 2170, Sao Jose dos Campos, Brazil",Aerospace and Defense
+70,Cemex,"Av. Ricardo Margain Zozaya 325, San Pedro, Mexico",Construction
+71,LATAM Airlines Group,"Av. Americo Vespucio 901, Renca, Santiago, Chile",Aviation
+72,Grupo Falabella,"Rosas 1665, Santiago, Chile",Retail
+73,Tenaris,"Diagonal 185bis, Buenos Aires, Argentina",Manufacturing
+74,Ultrapar Participacoes S.A.,"Rua Gomes de Carvalho, 1336, Sao Paulo, Brazil",Chemicals
+75,Grupo Carso,"Lago Zurich 245, Plaza Carso, Mexico City, Mexico",Conglomerate
+76,Grupo Argos,"Carrera 43A #1A Sur - 143, Medellin, Colombia",Cement and Energy
+77,S.A.C.I. Falabella,"Rosas 1665, Santiago, Chile",Retail
+78,Arcos Dorados Holdings Inc.,"Dr. Luis Bonavita 1294, Montevideo, Uruguay",Fast Food
+79,JBS S.A.,"Avenida Marginal Direita do Tiete, 500, Sao Paulo, Brazil",Food Processing
+80,Grupo Aeroportuario del Pacifico,"Mariano Otero 1249, Guadalajara, Mexico",Aviation
+81,Copel,"Rua Coronel Dulcidio, 800, Curitiba, Brazil",Energy
+82,Braskem,"Rua Lemos Monteiro, 120, Sao Paulo, Brazil",Petrochemicals
+83,Grupo Antofagasta Minerals,"Av. Apoquindo 4001, Santiago, Chile",Mining
+84,Ecopetrol,"Calle 37 #8-43, Bogota, Colombia",Oil and Gas
+85,Banco do Brasil,"SBS Quadra 1 Bloco C, Brasilia, Brazil",Banking
+86,Odebrecht,"Av. das Nacoes Unidas, 8501, Sao Paulo, Brazil",Construction
+87,YPF (Yacimientos Petroliferos Fiscales),"Macacha Guemes 515, Buenos Aires, Argentina",Oil and Gas
+88,Marfrig Global Foods,"Avenida Chedid Jafet, 222, Sao Paulo, Brazil",Food Processing
+89,Grupo Nutresa,"Calle 73 #51-14, Medellin, Colombia",Food and Beverages
+90,SQM (Sociedad Quimica y Minera de Chile),"El Trovador 4285, Las Condes, Santiago, Chile",Chemicals
+91,Petrobras,"Avenida Republica do Chile, 65, Rio de Janeiro, Brazil",Oil and Gas
+92,Vale S.A.,"Praia de Botafogo, 186, Rio de Janeiro, Brazil",Mining
+93,America Movil,"Lago Zurich 245, Plaza Carso, Mexico City, Mexico",Telecommunications
+94,Itau Unibanco Holding,"Praca Alfredo Egydio de Souza Aranha, 100, Sao Paulo, Brazil",Banking
+95,Grupo Mexico,"Campos Eliseos 400, Lomas de Chapultepec, Mexico City, Mexico",Mining
+96,Banco Bradesco,"Cidade de Deus, Vila Yara, Osasco, Brazil",Banking
+97,Banco Santander Brasil,"Av. Presidente Juscelino Kubitschek, 2041, Sao Paulo, Brazil",Banking
+98,Grupo Bimbo,"Prolongacion Paseo de la Reforma 1000, Mexico City, Mexico",Food Processing
+99,Grupo Financiero Banorte,"Av. Revolucion 3000, Monterrey, Mexico",Banking
+100,Suzano S.A.,"Av. Professor Magalhaes Neto, 1752, Salvador, Brazil",Pulp and Paper
