@@ -23,7 +23,7 @@
 	</properties>
 
 	<dependencies>
-	
+
 		<!-- Fuzzy matching depenency Java (from Intuit) -->
 
 		<dependency>
@@ -33,6 +33,12 @@
 		</dependency>
 
 		<!-- Apache XMLBeans dependency -->
+
+		<dependency>
+			<groupId>org.yaml</groupId>
+			<artifactId>snakeyaml</artifactId>
+			<version>1.32</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.jdom</groupId>

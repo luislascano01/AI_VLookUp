@@ -1,0 +1,33 @@
+reference_groups:
+  ID:
+    - "Customer_ID(1)"
+  Name:
+    - "Customer_ID(2)"
+    - "Customer_Name(5)"
+    - "Industrial_Sector(2)"
+  Address:
+    - "Customer_Name(1)"
+    - "Address(6)"
+
+target_groups:
+  ID:
+    - "Customer_ID(5)"
+    - "Customer_Name(1)"
+  Name:
+    - "Customer_Name(4)"
+    - "Customer_ID(5)"
+  Address:
+    - "Customer_Name(1)"
+    - "Address(6)"
+
+ref_to_tgt:
+  ID: "ID"
+  Name: "Name"
+  Address: "Address"
+
+tgt_to_ref:
+  ID: "ID"
+  Name: "Name"
+  Address:
+    - "Address"
+    - "Name"

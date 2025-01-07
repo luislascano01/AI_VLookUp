@@ -1,5 +1,5 @@
-Verify_ID,Customer ID,Customer Name,Customer Address,Customer Industrial Sector
-1,1 - Financials,Acme Cooorporation,"123 Elm Str, Sprinfgield, IL",Manufacturing
+Verify_ID,Customer ID,Customer Name,Address,Industrial Sector
+1,1 - Financials,Acme Corp,"123 Elm Str, Sprinfgield, IL",Manufacturing
 2,2,Globex Corporation,"456 Oakk St, Metropolis, IN",Tech
 3,3,Soylent Corporatoin,,
 4,,Initech LLC (Limited Liability),"101 Maple Ave, Smallville, KSS",Software
