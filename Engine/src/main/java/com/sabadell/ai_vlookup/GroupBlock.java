@@ -11,6 +11,8 @@ public class GroupBlock {
 	String groupName;
 	private Map<String, Double> headerWeightMap;
 	private int blockSize;
+	private Object data; // In our usage this will hold the Pool object; however, this is left abstract for best practice 
+						 //  and possible future usability.
 
 	public GroupBlock(String groupName, String[] headers, Double[] weights, Double overallWeight) throws IOException {
 		
@@ -97,8 +99,20 @@ public class GroupBlock {
 		return this.blockSize;
 	}
 	
+	public void setData(Object data) {
+		this.data = data;
+	}
+	
+	public Object getData() {
+		return this.data;
+	}
+	
 	public List<String> getHeaders() {
 	    return new ArrayList<String>(headerWeightMap.keySet());
+	}
+	
+	public String getGroupBlockName() {
+		return this.groupName;
 	}
 
 }
