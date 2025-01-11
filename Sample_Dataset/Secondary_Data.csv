@@ -93,9 +93,8 @@ Verify_ID,Customer ID,Customer Name,Address,Industrial Sector
 92,,Vale Sociedad Anonima,"Praia de Botafgo, 186, Rio de Janeiro, Brazil",Mining
 93,93,America Movil Holdings,"Lago Zurich 245, Plaza Crso, Mexico City, Mexico",Telecommunications
 94,94,Itau Unibanco Holding SA (Sociedad Anonima),,Banknig
-95,,"Grupo Mexico, Ltd","Campos Eliseos 400, Lomas de Chapultepec, Mexico Ciy, Mexico",
+95,,Grupo Mexmining,"Campos Eliseos 400, Lomas de Chapultepec, Mexico Ciy, Mexico",
 96,96,Banco Bradesco Sociedad Anonima,,Bank
 97,,Banco Santander Brasil,"Av. Presidente Juscelino Kubitshcek, 2041, Sao Paulo, Brazil",Banking
-98,98,Grupo Bimbo Foods,"Prolongacion Paseo de la Refrma 1000, Mexico City, Mexico",Food Processing
-99,99,Grupo Financiero Banorte,,Banking
-100,,Suzano Sociedad Anonima,"Av. Professor Magalhaes Nto, 1752, Salvador, Brazil",Pulp and Paper
+98,99,Grupo Financiero Banorte,,Banking
+99,,Suzano Sociedad Anonima,"Av. Professor Magalhaes Nto, 1752, Salvador, Brazil",Pulp and Paper

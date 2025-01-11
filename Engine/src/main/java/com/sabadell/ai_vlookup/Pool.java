@@ -2,7 +2,6 @@ package com.sabadell.ai_vlookup;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 
 /**
  * A Pool class that extends HashMap to manage HashBucket objects. Provides
@@ -43,7 +42,7 @@ public class Pool {
 		} else if (currHashBucket == null) {
 			HashBucket newHashBucket = new HashBucket(token);
 			newHashBucket.addEntry(entry);
-			hashPool.put(token, currHashBucket);
+			hashPool.put(token, newHashBucket);
 		}
 
 	}

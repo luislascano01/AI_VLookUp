@@ -20,5 +20,9 @@ public class BucketEntry {
 
 		return this.weight;
 	}
+	
+	public void increaseWeight(Double weight) {
+		this.weight += weight;
+	}
 
 }

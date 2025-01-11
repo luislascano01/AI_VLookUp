@@ -22,19 +22,18 @@ public class BidirectionalGroupMap {
 
 	// FIX: Now these maps are keyed by HeaderName -> List of GroupBlock(s)
 	private Map<String, List<GroupBlock>> refToGroups = new HashMap<String, List<GroupBlock>>();
-	private Map<String, List<GroupBlock>> targetToGroups = new HashMap<String, List<GroupBlock>>();
+	private Map<String, List<GroupBlock>> tgtToGroups = new HashMap<String, List<GroupBlock>>();
 
 	// Map for keeping track of the reference groups by name
 	private Map<String, GroupBlock> refGroups = new HashMap<String, GroupBlock>();
 
 	// Map for keeping track of the target groups by name
 	private Map<String, GroupBlock> tgtGroups = new HashMap<String, GroupBlock>();
-	
+
 	// This maps from a single reference group-block to 0..N target group-block(s)
 	private Map<String, List<GroupBlock>> refGroupsToTgtGroups = new HashMap<String, List<GroupBlock>>();
 	// This maps from a single target group-block to 0..N reference group-block(s)
 	private Map<String, List<GroupBlock>> tgtGroupsToRefGroups = new HashMap<String, List<GroupBlock>>();
-
 
 	private Yaml base_yaml;
 
@@ -59,6 +58,46 @@ public class BidirectionalGroupMap {
 
 	}
 
+	public List<GroupBlock> getGroupsFromSourceGroupName(String groupName, boolean leftToRight) {
+
+		if (leftToRight) {
+
+			return this.refGroupsToTgtGroups.get(groupName);
+		}
+		return this.tgtGroupsToRefGroups.get(groupName);
+	}
+
+	public Map<String, GroupBlock> getGroups(boolean reference) {
+
+		if (reference) {
+			return refGroups;
+		} else
+			return tgtGroups;
+	}
+
+	public List<GroupBlock> getGroupsFromHeader(String header, boolean reference) {
+
+		if (reference) {
+			return this.refToGroups.get(header);
+		} else {
+			return this.tgtToGroups.get(header);
+		}
+	}
+
+	public List<String> getInputHeaders(boolean reference) {
+
+		Set<String> keys = null;
+
+		if (reference) {
+			keys = this.refToGroups.keySet();
+		} else {
+			keys = this.tgtToGroups.keySet();
+		}
+
+		return new ArrayList<String>(keys);
+
+	}
+
 	/**
 	 * Constructor: loads the YAML file, parses everything, populates the data
 	 * structures.
@@ -66,7 +105,7 @@ public class BidirectionalGroupMap {
 	public BidirectionalGroupMap(File yamlFile) throws IOException {
 
 		Map<String, Object> root = this.loadConfiguration(yamlFile);
-		
+
 		// 2) Extract the top-level sections
 		@SuppressWarnings("unchecked")
 		Map<String, List<String>> referenceGroupsRaw = (Map<String, List<String>>) root.get("reference_groups");
@@ -90,17 +129,17 @@ public class BidirectionalGroupMap {
 				refToGroups.computeIfAbsent(header, k -> new ArrayList<>()).add(gb);
 			}
 		}
-		
+
 		for (Map.Entry<String, GroupBlock> entry : targetGroupMap.entrySet()) {
 			GroupBlock gb = entry.getValue();
 			for (String header : gb.getHeaders()) {
-				targetToGroups.computeIfAbsent(header, k -> new ArrayList<>()).add(gb);
+				tgtToGroups.computeIfAbsent(header, k -> new ArrayList<>()).add(gb);
 			}
 		}
 
 		// 6) Parse the relationships into Map<String, List<String>>
 		// (still groupName -> groupName(s))
-		
+
 		Map<String, List<String>> refToTgtRelationships = parseYamlRelationships(refToTgtRaw);
 		Map<String, List<String>> tgtToRefRelationships = parseYamlRelationships(tgtToRefRaw);
 
@@ -114,38 +153,40 @@ public class BidirectionalGroupMap {
 		// ref group name that maps to that T_GROUP, we add that T_GROUP block to
 		// refBlock's list.
 		structureSingleDirectionGroupsToGroups(refToTgtRelationships, this.refGroupsToTgtGroups, tgtGroups);
-		
+
 		// -- For "Tgt->Ref": key is a reference group name, value is a list of target
-				// group names
-				// So for each REF group name, we map each T_GROUP block to that REF group block
+		// group names
+		// So for each REF group name, we map each T_GROUP block to that REF group block
 		structureSingleDirectionGroupsToGroups(tgtToRefRelationships, this.tgtGroupsToRefGroups, refGroups);
 
-		
-	
 	}
-	
-	/** Helper method to structure mappings between groups to groups.
-	 * @param rawMap The map of the source groups parsed from the YAML file
-	 * @param storeMap The map to sore the parsed relationships 
-	 * @param endNameMap The current object's map that links end group names to their corresponding block.
+
+	/**
+	 * Helper method to structure mappings between groups to groups.
+	 * 
+	 * @param rawMap     The map of the source groups parsed from the YAML file
+	 * @param storeMap   The map to sore the parsed relationships
+	 * @param endNameMap The current object's map that links end group names to
+	 *                   their corresponding block.
 	 */
-	private void structureSingleDirectionGroupsToGroups(Map<String, List<String>> rawMap, Map<String, List<GroupBlock>> storeMap, Map<String, GroupBlock> endNameMap) {
-		
-		for(Map.Entry<String, List<String>> entry : rawMap.entrySet()) {
-			
+	private void structureSingleDirectionGroupsToGroups(Map<String, List<String>> rawMap,
+			Map<String, List<GroupBlock>> storeMap, Map<String, GroupBlock> endNameMap) {
+
+		for (Map.Entry<String, List<String>> entry : rawMap.entrySet()) {
+
 			String srcGroupName = entry.getKey();
-			
+
 			List<GroupBlock> endBlocks = new ArrayList<GroupBlock>();
-			
-			for(String endGroupName : entry.getValue()) {
+
+			for (String endGroupName : entry.getValue()) {
 				GroupBlock endGroupBlock = endNameMap.get(endGroupName);
 				endBlocks.add(endGroupBlock);
 			}
-			
+
 			storeMap.put(srcGroupName, endBlocks);
-			
+
 		}
-		
+
 	}
 
 	/**
@@ -197,7 +238,8 @@ public class BidirectionalGroupMap {
 	 * 
 	 * groupName -> GroupBlock
 	 */
-	private Map<String, GroupBlock> parseGroupBlocksFromYaml(Map<String, List<String>> groupsMap, Map<String, GroupBlock> groupNameMap) throws IOException {
+	private Map<String, GroupBlock> parseGroupBlocksFromYaml(Map<String, List<String>> groupsMap,
+			Map<String, GroupBlock> groupNameMap) throws IOException {
 		Map<String, GroupBlock> groupMap = new HashMap<>();
 
 		if (groupsMap == null) {
@@ -236,12 +278,11 @@ public class BidirectionalGroupMap {
 						weightList.toArray(new Double[0]), overallWeight);
 				groupMap.put(groupName, gb);
 				groupNameMap.put(groupName, gb);
-				
+
 			}
 		}
 		return groupMap;
 	}
-
 
 	/**
 	 * Returns a LaTeX string (using TikZ) that draws a directed graph: - Reference
@@ -295,9 +336,9 @@ public class BidirectionalGroupMap {
 
 		int currentRefRow = 0;
 		for (String groupName : sortedRefBlocks) {
-			
+
 			GroupBlock currGroup = refGroups.get(groupName);
-			
+
 			int numHeaders = currGroup.getHeaders().size();
 			int totalRows = numHeaders + 1; // 1 for the group
 			int startRow = currentRefRow;
@@ -408,10 +449,9 @@ public class BidirectionalGroupMap {
 		// targetGroupsToRefGroups: (target GroupBlock -> List<ref GroupBlock>)
 		// ------------------------------------------------------
 		sb.append("\n% -- Ref->Tgt edges --\n");
-		
-		
+
 		for (Map.Entry<String, List<GroupBlock>> entry : refGroupsToTgtGroups.entrySet()) {
-			
+
 			String refBlockName = entry.getKey();
 			GroupBlock refBlock = this.refGroups.get(refBlockName);
 			String refNodeID = "ref" + removeUnderscores.apply(refBlock.groupName);
@@ -426,7 +466,7 @@ public class BidirectionalGroupMap {
 
 		sb.append("\n% -- Tgt->Ref edges --\n");
 		for (Map.Entry<String, List<GroupBlock>> entry : tgtGroupsToRefGroups.entrySet()) {
-			
+
 			String tgtBlockName = entry.getKey();
 			GroupBlock tgtBlock = this.tgtGroups.get(tgtBlockName);
 			String tgtNodeID = "tgt" + removeUnderscores.apply(tgtBlock.groupName);
