@@ -14,7 +14,7 @@ import java.io.ObjectInputStream;
 /**
  * Represents a fuzzy logic-based database that allows data to be tokenized and
  * indexed for efficient lookup operations. It uses a configurable backbone (via
- * a YAML file) to manage the relationships between data groups and headers.
+ * a YAML file) to manage the relationships between data groups and headers
  */
 
 public class FuzzyDatabase implements Serializable {
