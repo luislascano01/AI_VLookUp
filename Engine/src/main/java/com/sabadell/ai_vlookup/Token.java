@@ -1,8 +1,5 @@
 package com.sabadell.ai_vlookup;
 
-import edu.stanford.nlp.pipeline.*;
-import edu.stanford.nlp.ling.CoreAnnotations;
-import edu.stanford.nlp.util.CoreMap;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -66,12 +63,12 @@ public class Token implements Serializable {
 				} else {
 					// tokens.addAll(generateCuts(token.toLowerCase(), 3));
 					tokens.addAll(generateCuts(token, 4));
-					tokens.addAll(generateCuts(token, 5));
+					//tokens.addAll(generateCuts(token, 5));
 					tokens.addAll(generateCuts(token, 8));
 					tokens.addAll(generateCuts(token, 10));
 					tokens.addAll(generateCuts(token, 13));
 					tokens.addAll(generateCuts(token, 13));
-					tokens.addAll(generateCuts(token, 15));
+					//tokens.addAll(generateCuts(token, 15));
 					tokens.addAll(generateCuts(token, 17));
 				}
 			}

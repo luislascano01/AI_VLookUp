@@ -30,14 +30,6 @@
 			<version>1.8</version>
 		</dependency>
 
-		<!-- Fuzzy matching depenency Java (from Intuit) -->
-
-		<dependency>
-			<groupId>com.intuit.fuzzymatcher</groupId>
-			<artifactId>fuzzy-matcher</artifactId>
-			<version>1.2.1</version>
-		</dependency>
-
 		<!-- Apache XMLBeans dependency -->
 
 		<dependency>
@@ -122,18 +114,6 @@
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
 			<version>1.2.3</version>
-		</dependency>
-
-		<dependency>
-			<groupId>edu.stanford.nlp</groupId>
-			<artifactId>stanford-corenlp</artifactId>
-			<version>4.5.1</version>
-		</dependency>
-		<dependency>
-			<groupId>edu.stanford.nlp</groupId>
-			<artifactId>stanford-corenlp</artifactId>
-			<classifier>models</classifier>
-			<version>4.5.1</version>
 		</dependency>
 	</dependencies>
 
