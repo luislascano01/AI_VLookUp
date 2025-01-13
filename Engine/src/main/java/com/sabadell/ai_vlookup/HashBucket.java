@@ -1,10 +1,12 @@
 package com.sabadell.ai_vlookup;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class HashBucket {
+public class HashBucket implements Serializable {
+	private static final long serialVersionUID = 1L;
 	private String token;
 	private ArrayList<BucketEntry> entries;
 	private Map<Integer, BucketEntry> entriesByIndx;
@@ -22,8 +24,8 @@ public class HashBucket {
 
 		return this.token;
 	}
-	
-	public ArrayList<BucketEntry> getEntries(){
+
+	public ArrayList<BucketEntry> getEntries() {
 		return this.entries;
 	}
 

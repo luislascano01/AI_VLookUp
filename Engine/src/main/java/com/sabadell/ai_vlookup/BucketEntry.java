@@ -1,7 +1,9 @@
 package com.sabadell.ai_vlookup;
 
-public class BucketEntry {
+import java.io.Serializable;
 
+public class BucketEntry implements Serializable {
+	private static final long serialVersionUID = 1L;
 	private int entryIdx;
 	private Double weight;
 
@@ -20,7 +22,7 @@ public class BucketEntry {
 
 		return this.weight;
 	}
-	
+
 	public void increaseWeight(Double weight) {
 		this.weight += weight;
 	}

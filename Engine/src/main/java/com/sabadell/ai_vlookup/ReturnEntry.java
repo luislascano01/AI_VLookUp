@@ -1,9 +1,11 @@
 package com.sabadell.ai_vlookup;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 
-public class ReturnEntry {
+public class ReturnEntry implements Serializable {
+	private static final long serialVersionUID = 1L;
         private final Integer index;
         private Double weight;
 

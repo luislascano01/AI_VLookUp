@@ -18,7 +18,8 @@ import java.net.URISyntaxException;
  * GroupBlock, List<target GroupBlock>> 4. targetGroupsToRefGroups: Map<target
  * GroupBlock, List<reference GroupBlock>>
  */
-public class BidirectionalGroupMap {
+public class BidirectionalGroupMap implements Serializable{
+	private static final long serialVersionUID = 1L;
 
 	// FIX: Now these maps are keyed by HeaderName -> List of GroupBlock(s)
 	private Map<String, List<GroupBlock>> refToGroups = new HashMap<String, List<GroupBlock>>();
@@ -35,7 +36,7 @@ public class BidirectionalGroupMap {
 	// This maps from a single target group-block to 0..N reference group-block(s)
 	private Map<String, List<GroupBlock>> tgtGroupsToRefGroups = new HashMap<String, List<GroupBlock>>();
 
-	private Yaml base_yaml;
+	private transient Yaml base_yaml;
 
 	/**
 	 * Helper method for the constructor to retrieve YAML configuration file.

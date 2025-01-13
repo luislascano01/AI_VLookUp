@@ -18,10 +18,10 @@ public class QueryAnalyzer {
         }
 
         // PriorityQueue that sorts by weight descending
-        this.matchingEntries = new PriorityQueue<>(Comparator.comparingDouble(ReturnEntry::getWeight).reversed());
+        this.matchingEntries = new PriorityQueue<ReturnEntry>(Comparator.comparingDouble(ReturnEntry::getWeight).reversed());
 
         // Map to store the references to each Entry by index
-        this.entryMap = new HashMap<>();
+        this.entryMap = new HashMap<Integer, ReturnEntry>();
     }
 
     public Map<String, List<String>> getTokenizedEntry() {

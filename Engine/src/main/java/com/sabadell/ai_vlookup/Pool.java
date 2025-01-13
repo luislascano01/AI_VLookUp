@@ -1,5 +1,6 @@
 package com.sabadell.ai_vlookup;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,7 +11,8 @@ import java.util.Map;
  * @param <K> The type of the key.
  * @param <V> The type of the value (HashBucket).
  */
-public class Pool {
+public class Pool implements Serializable {
+	private static final long serialVersionUID = 1L;
 
 	private Map<String, HashBucket> hashPool;
 
@@ -35,9 +37,8 @@ public class Pool {
 		HashBucket currHashBucket = this.getHashBucket(token);
 
 		if (currHashBucket != null) {
-			
+
 			currHashBucket.addEntry(entry);
-			
 
 		} else if (currHashBucket == null) {
 			HashBucket newHashBucket = new HashBucket(token);

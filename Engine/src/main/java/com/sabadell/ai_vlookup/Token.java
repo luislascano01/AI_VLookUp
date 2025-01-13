@@ -4,119 +4,148 @@ import edu.stanford.nlp.pipeline.*;
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.util.CoreMap;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
-public class Token {
+public class Token implements Serializable {
 
-    /**
-     * Tokenizes the input text by splitting words into overlapping segments (cuts).
-     *
-     * @param input The text to be tokenized.
-     * @return A list of tokens and their segments.
-     */
-    public static List<String> tokenize(String input) {
-        if (input == null || input.trim().isEmpty()) {
-            return new ArrayList<>(); // Return empty list for null or empty input
-        }
+	// Declare the dictionary as static and final
 
-        // Step 1: Preprocess input to remove unnecessary punctuation
-        input = preprocess(input);
+	public static final HashMap<String, List<String>> stopWords = new HashMap<>();
 
-        // Step 2: Initialize Stanford NLP pipeline
-        Properties props = new Properties();
-        props.setProperty("annotators", "tokenize");
-        StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
+	static {
+		stopWords.put("Common",
+				Arrays.asList("Incorporated", "Corporation", "Company", "Limited", "LLC", "Inc.", "Corp.", "Co.",
+						"Ltd.", "LLP", "LP", "L.P.", "L.L.P.", "P.C.", "PLLC", "Corp", "Inc", // English
+						"Sociedad Anonima", "Compania Limitada", "Sociedad de Responsabilidad Limitada",
+						"Sociedad Limitada", "S.L.", "S.A.", "SA", "S.L.N.E.", "S.R.L.", "S.A.S.", "S. de R.L.", "S.C.",
+						"S.C.S.", "S.Coop.", "S.A. de C.V.", "Grupo", "Asociacion", "City" // Spanish
+				).stream().map(String::toLowerCase).collect(Collectors.toList())); // Normalize stop words to lowercase
+	}
 
-        // Step 3: Create an annotation for the input text
-        Annotation annotation = new Annotation(input);
-        pipeline.annotate(annotation);
+	private static final long serialVersionUID = 1L;
 
-        // Step 4: Extract tokens and generate cuts
-        List<String> tokens = new ArrayList<String>();
-        List<CoreMap> sentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);
+	/**
+	 * Tokenizes the input text by splitting words into overlapping segments (cuts).
+	 *
+	 * @param input The text to be tokenized.
+	 * @return A list of tokens and their segments.
+	 */
+	public static List<String> tokenize(String input) {
+		if (input == null || input.trim().isEmpty()) {
+			return new ArrayList<>(); // Return empty list for null or empty input
+		}
 
-        for (CoreMap sentence : sentences) {
-            List<edu.stanford.nlp.ling.CoreLabel> tokenAnnotations = sentence.get(CoreAnnotations.TokensAnnotation.class);
-            for (edu.stanford.nlp.ling.CoreLabel tokenAnnotation : tokenAnnotations) {
-                String token = tokenAnnotation.word();
+		// Step 1: Preprocess input to remove unnecessary punctuation
+		input = preprocess(input);
 
-                // Filter out invalid tokens
-                if (isValidToken(token)) {
-                    if (isNumericId(token)) {
-                        tokens.add(token); // Keep numeric IDs intact
-                    } else {
-                        tokens.addAll(generateCuts(token.toLowerCase())); // Generate cuts for words
-                    }
-                }
-            }
-        }
+		List<String> words = new ArrayList<>(Arrays.asList(input.split("\\s+")));
+		words.removeAll(stopWords.get("Common")); // Remove common stop words
 
-        return tokens;
-    }
+		// Step 2: Initialize Stanford NLP pipeline
+		// Reconstruct input without stop words
+		input = String.join(" ", words);
 
-    /**
-     * Preprocesses the input text by removing unnecessary punctuation and normalizing spaces.
-     *
-     * @param input The raw input text.
-     * @return The cleaned input text.
-     */
-    private static String preprocess(String input) {
-        // Remove unnecessary punctuation but keep meaningful characters
-        return input.replaceAll("[^\\w\\s]", "").replaceAll("\\s+", " ").trim();
-    }
+		Properties props = new Properties();
+		props.setProperty("annotators", "tokenize");
+		StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
 
-    /**
-     * Checks if a token is a valid word or number.
-     *
-     * @param token The token to check.
-     * @return True if the token is valid, false otherwise.
-     */
-    private static boolean isValidToken(String token) {
-        return token.matches("\\w+"); // Matches words and numbers, excludes punctuation
-    }
+		// Step 3: Create an annotation for the input text
 
-    /**
-     * Checks if a token is a numeric ID (e.g., long client numbers).
-     *
-     * @param token The token to check.
-     * @return True if the token is a numeric ID, false otherwise.
-     */
-    private static boolean isNumericId(String token) {
-        return token.matches("\\d{3,}"); // Matches numbers with 3 or more digits
-    }
+		// Step 4: Extract tokens and generate cuts
+		List<String> tokens = new ArrayList<String>();
 
-    /**
-     * Generates overlapping cuts (segments) of a word.
-     *
-     * @param word The word to split.
-     * @return A list of overlapping segments.
-     */
-    private static List<String> generateCuts(String word) {
-        List<String> cuts = new ArrayList<String>();
-        int cutSize = 4; // The size of each cut (can be adjusted)
+		for (String token : input.split(" ")) {
+			// Filter out invalid tokens
+			if (isValidToken(token)) {
+				if (isNumericId(token)) {
+					//tokens.add(token);
+					tokens.add(token);
+					tokens.add(token);
+					//tokens.add(token);// Keep numeric IDs intact
+				} else {
+					// tokens.addAll(generateCuts(token.toLowerCase(), 3));
+					tokens.addAll(generateCuts(token, 4));
+					tokens.addAll(generateCuts(token, 5));
+					tokens.addAll(generateCuts(token, 8));
+					tokens.addAll(generateCuts(token, 10));
+					tokens.addAll(generateCuts(token, 13));
+					tokens.addAll(generateCuts(token, 13));
+				}
+			}
+		}
 
-        for (int i = 0; i < word.length() - cutSize + 1; i+=2) {
-            cuts.add(word.substring(i, i + cutSize)); // Generate a cut of size `cutSize`
-        }
+		return tokens;
+	}
 
-        return cuts;
-    }
+	/**
+	 * Preprocesses the input text by removing unnecessary punctuation and
+	 * normalizing spaces.
+	 *
+	 * @param input The raw input text.
+	 * @return The cleaned input text.
+	 */
+	private static String preprocess(String input) {
+		// Remove unnecessary punctuation but keep meaningful characters
+		input = input.toLowerCase();
+		return input.replaceAll("[^\\w\\s]", "").replaceAll("\\s+", " ").trim();
+	}
 
-    public static void main(String[] args) {
-        // Example client data
-        String clientName = "John Doe";
-        String clientAddress = "123 Main St, Springfield, IL 62704";
-        String clientId = "123456789";
+	/**
+	 * Checks if a token is a valid word or number.
+	 *
+	 * @param token The token to check.
+	 * @return True if the token is valid, false otherwise.
+	 */
+	private static boolean isValidToken(String token) {
+		return token.matches("\\w+"); // Matches words and numbers, excludes punctuation
+	}
 
-        // Tokenizing each field
-        List<String> nameTokens = tokenize(clientName);
-        List<String> addressTokens = tokenize(clientAddress);
-        List<String> idTokens = tokenize(clientId);
+	/**
+	 * Checks if a token is a numeric ID (e.g., long client numbers).
+	 *
+	 * @param token The token to check.
+	 * @return True if the token is a numeric ID, false otherwise.
+	 */
+	private static boolean isNumericId(String token) {
+		return token.matches("\\d{4,}"); // Matches numbers with 3 or more digits
+	}
 
-        System.out.println("Name Tokens: " + nameTokens);
-        System.out.println("Address Tokens: " + addressTokens);
-        System.out.println("ID Tokens: " + idTokens);
-    }
+	/**
+	 * Generates overlapping cuts (segments) of a word.
+	 *
+	 * @param word The word to split.
+	 * @return A list of overlapping segments.
+	 */
+	private static List<String> generateCuts(String word, int cutSize) {
+		List<String> cuts = new ArrayList<String>();
+
+		for (int i = 0; i < word.length() - cutSize + 1; i += 2) {
+			cuts.add(word.substring(i, i + cutSize)); // Generate a cut of size `cutSize`
+		}
+
+		return cuts;
+	}
+
+	public static void main(String[] args) {
+		// Example client data
+		String clientName = "John Doe";
+		String clientAddress = "123 Main St, Springfield, IL 62704";
+		String clientId = "123456789";
+
+		// Tokenizing each field
+		List<String> nameTokens = tokenize(clientName);
+		List<String> addressTokens = tokenize(clientAddress);
+		List<String> idTokens = tokenize(clientId);
+
+		System.out.println("Name Tokens: " + nameTokens);
+		System.out.println("Address Tokens: " + addressTokens);
+		System.out.println("ID Tokens: " + idTokens);
+	}
 }

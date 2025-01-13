@@ -3,7 +3,7 @@ reference_groups:
     - "Customer_ID(1)"
   Name:
     - "Customer_ID(2)"
-    - "Customer_Name(5)"
+    - "Customer_Name(6)"
     - "Industrial_Sector(2)"
   Address:
     - "Customer_Name(1)"
@@ -15,10 +15,12 @@ target_groups:
     - "Customer_Name(1)"
   Name:
     - "Customer_Name(4)"
-    - "Customer_ID(5)"
+    - "Customer_ID(1)"
+    - "Industrial_Sector(1)"
   Address:
     - "Customer_Name(1)"
     - "Address(6)"
+    - "Industrial_Sector(1)"
 
 ref_to_tgt:
   ID: "ID"
