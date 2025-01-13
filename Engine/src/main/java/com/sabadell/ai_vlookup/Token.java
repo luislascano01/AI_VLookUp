@@ -52,12 +52,6 @@ public class Token implements Serializable {
 		// Reconstruct input without stop words
 		input = String.join(" ", words);
 
-		Properties props = new Properties();
-		props.setProperty("annotators", "tokenize");
-		StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-
-		// Step 3: Create an annotation for the input text
-
 		// Step 4: Extract tokens and generate cuts
 		List<String> tokens = new ArrayList<String>();
 
@@ -77,6 +71,8 @@ public class Token implements Serializable {
 					tokens.addAll(generateCuts(token, 10));
 					tokens.addAll(generateCuts(token, 13));
 					tokens.addAll(generateCuts(token, 13));
+					tokens.addAll(generateCuts(token, 15));
+					tokens.addAll(generateCuts(token, 17));
 				}
 			}
 		}
