@@ -70,10 +70,10 @@
 			
 			
 			HashMap<String, String> row7 = new HashMap<>();
-			row7.put("Customer_Name", "LATAM Group");
+			row7.put("Customer_Name", "Flat Ridge 4 Wind, LLC");
 			row7.put("Address", "");
 			row7.put("Customer_ID", "");
-			row7.put("Industrial_Sector", "");
+			row7.put("Industrial_Sector", "Manufacturing");
 			data.add(row7);
 			
 			

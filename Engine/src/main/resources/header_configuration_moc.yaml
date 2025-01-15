@@ -33,7 +33,7 @@ target_groups:
     - "Email(1)"
   InvoiceDetails:
     - "Order_Number(4)"
-    - "Amount(7)"
+    - "Amount(7)"x
     - "Discount_Code(2)"
     - "Tax(3)"
 

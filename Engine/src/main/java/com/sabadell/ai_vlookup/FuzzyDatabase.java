@@ -125,7 +125,7 @@ public class FuzzyDatabase implements Serializable {
 
 					Double weight = currBlock.getHeaderWeight(inputHeader); // Header weight
 					BucketEntry bucketEntry = new BucketEntry(Integer.parseInt(rowIdx), weight);
-
+					
 					for (String token : tokens) {
 						currPool.placeEntry(token, bucketEntry); // Place token in pool
 					}
@@ -177,7 +177,7 @@ public class FuzzyDatabase implements Serializable {
 						groupTokens.addAll(tokenizedEntry);
 					}
 				} else {
-					List<String> groupTokens = new ArrayList<>(tokenizedEntry);
+					List<String> groupTokens = new ArrayList<>(tokenizedEntry);	
 					targetGroupBlock.setData(groupTokens);
 				}
 			}

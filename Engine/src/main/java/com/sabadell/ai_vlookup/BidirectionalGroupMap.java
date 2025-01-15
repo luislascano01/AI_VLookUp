@@ -519,7 +519,7 @@ public class BidirectionalGroupMap implements Serializable{
 	 */
 	public static void main(String[] args) throws Exception {
 		// 1) Locate the YAML file
-		java.net.URL yamlUrl = BidirectionalGroupMap.class.getResource("/header_configuration.yaml");
+		java.net.URL yamlUrl = BidirectionalGroupMap.class.getResource("/header_configuration_moc.yaml");
 		if (yamlUrl == null) {
 			throw new IllegalStateException("Could not find 'header_configuration.yaml' in resources folder!");
 		}
