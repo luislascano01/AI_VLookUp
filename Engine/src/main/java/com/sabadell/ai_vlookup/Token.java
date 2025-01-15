@@ -1,6 +1,5 @@
 package com.sabadell.ai_vlookup;
 
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,13 +16,19 @@ public class Token implements Serializable {
 	public static final HashMap<String, List<String>> stopWords = new HashMap<>();
 
 	static {
-		stopWords.put("Common",
-				Arrays.asList("Incorporated", "Corporation", "Company", "Limited", "LLC", "Inc.", "Corp.", "Co.",
-						"Ltd.", "LLP", "LP", "L.P.", "L.L.P.", "P.C.", "PLLC", "Corp", "Inc", // English
-						"Sociedad Anonima", "Compania Limitada", "Sociedad de Responsabilidad Limitada",
-						"Sociedad Limitada", "S.L.", "S.A.", "SA", "S.L.N.E.", "S.R.L.", "S.A.S.", "S. de R.L.", "S.C.",
-						"S.C.S.", "S.Coop.", "S.A. de C.V.", "Grupo", "Asociacion", "City" // Spanish
-				).stream().map(String::toLowerCase).collect(Collectors.toList())); // Normalize stop words to lowercase
+		stopWords.put("Common", Arrays.asList("Incorporated", "Corporation", "Company", "Limited", "LLC", "Inc.",
+				"Corp.", "Co.", "Ltd.", "LLP", "LP", "L.P.", "L.L.P.", "P.C.", "PLLC", "Corp", "Inc", "Partnership",
+				"Group", "Association", "Holdings", "Enterprise", "Enterprises", "Firm", "Trust", "Foundation",
+				"Institution", "Organization", "Estate", "Union", "Consortium", "Joint Venture", "JV", "Venture",
+				"LLC.",
+
+				// Spanish Stop Words for Business Entities
+				"Sociedad Anonima", "Compania Limitada", "Sociedad de Responsabilidad Limitada", "Sociedad Limitada",
+				"S.L.", "S.A.", "SA", "S.L.N.E.", "S.R.L.", "S.A.S.", "S. de R.L.", "S.C.", "S.C.S.", "S.Coop.",
+				"S.A. de C.V.", "Grupo", "Asociacion", "Fundacion", "Union", "Cooperativa", "Corporacion", "Compania",
+				"Negocios", "Empresa", "Empresas", "Comercio", "Sociedad", "Fideicomiso", "Consorcio", "Alianza",
+				"Entidad", "S.C.S.", "S.Coop.", "S.A. de C.V.", "Grupo", "Asociacion", "City" // Spanish
+		).stream().map(String::toLowerCase).collect(Collectors.toList())); // Normalize stop words to lowercase
 	}
 
 	private static final long serialVersionUID = 1L;
@@ -56,19 +61,19 @@ public class Token implements Serializable {
 			// Filter out invalid tokens
 			if (isValidToken(token)) {
 				if (isNumericId(token)) {
-					//tokens.add(token);
+					// tokens.add(token);
 					tokens.add(token);
 					tokens.add(token);
-					//tokens.add(token);// Keep numeric IDs intact
+					// tokens.add(token);// Keep numeric IDs intact
 				} else {
 					// tokens.addAll(generateCuts(token.toLowerCase(), 3));
 					tokens.addAll(generateCuts(token, 4));
-					//tokens.addAll(generateCuts(token, 5));
+					// tokens.addAll(generateCuts(token, 5));
 					tokens.addAll(generateCuts(token, 8));
 					tokens.addAll(generateCuts(token, 10));
 					tokens.addAll(generateCuts(token, 13));
 					tokens.addAll(generateCuts(token, 13));
-					//tokens.addAll(generateCuts(token, 15));
+					// tokens.addAll(generateCuts(token, 15));
 					tokens.addAll(generateCuts(token, 17));
 				}
 			}

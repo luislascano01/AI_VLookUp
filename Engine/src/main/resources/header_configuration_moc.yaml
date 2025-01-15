@@ -1,56 +1,63 @@
-reference_groups:
-  ID:
-    - "Customer_ID(1)"
-  Transactions:
-    - "Order_Number(3)"
-    - "Amount(6)"
-    - "Discount_Code(2)"
-  Name:
-    - "Customer_ID(2)"
-    - "Customer_Name(5)"
-    - "Industrial_Sector(2)"
-  Address:
-    - "Customer_Name(1)"
-    - "Address(6)"
-  Contact:
-    - "Phone(4)"
-    - "Email(2)"
-    - "Primary_Contact_Name(3)"
+FuzzyDatabaseConfig:
+  BackboneConfiguration:
+    reference_groups:
+      ID:
+        - "Customer_ID(1)"
+      Transactions:
+        - "Order_Number(3)"
+        - "Amount(6)"
+        - "Discount_Code(2)"
+      Name:
+        - "Customer_ID(2)"
+        - "Customer_Name(5)"
+        - "Industrial_Sector(2)"
+      Address:
+        - "Customer_Name(1)"
+        - "Address(6)"
+      Contact:
+        - "Phone(4)"
+        - "Email(2)"
+        - "Primary_Contact_Name(3)"
+  
+    target_groups:
+      ID:
+        - "Customer_ID(5)"
+        - "Customer_Name(1)"
+      Name:
+        - "Customer_Name(4)"
+        - "Customer_ID(5)"
+      Address:
+        - "Customer_Name(1)"
+        - "Address(6)"
+      Contact:
+        - "Phone(3)"
+        - "Contact_Name(2)"
+        - "Email(1)"
+      InvoiceDetails:
+        - "Order_Number(4)"
+        - "Amount(7)"
+        - "Discount_Code(2)"
+        - "Tax(3)"
+  
+    ref_to_tgt:
+      ID: "ID"
+      Name: "Name"
+      Address: "Address"
+      Contact: "Contact"
+      Transactions: "InvoiceDetails"
+  
+    tgt_to_ref:
+      ID: "ID"
+      Name: "Name"
+      Address:
+        - "Address"
+        - "Name"
+      Contact: "Contact"
+      InvoiceDetails:
+        - "Transactions"
+        - "Address"
 
-target_groups:
-  ID:
-    - "Customer_ID(5)"
-    - "Customer_Name(1)"
-  Name:
-    - "Customer_Name(4)"
-    - "Customer_ID(5)"
-  Address:
-    - "Customer_Name(1)"
-    - "Address(6)"
-  Contact:
-    - "Phone(3)"
-    - "Contact_Name(2)"
-    - "Email(1)"
-  InvoiceDetails:
-    - "Order_Number(4)"
-    - "Amount(7)"x
-    - "Discount_Code(2)"
-    - "Tax(3)"
-
-ref_to_tgt:
-  ID: "ID"
-  Name: "Name"
-  Address: "Address"
-  Contact: "Contact"
-  Transactions: "InvoiceDetails"
-
-tgt_to_ref:
-  ID: "ID"
-  Name: "Name"
-  Address:
-    - "Address"
-    - "Name"
-  Contact: "Contact"
-  InvoiceDetails:
-    - "Transactions"
-    - "Address"
+  DataToConsume:
+    Workbooks:
+      Customers: "/path/to/customers.xlsx"
+      Transactions: "/path/to/transactions.xlsx"

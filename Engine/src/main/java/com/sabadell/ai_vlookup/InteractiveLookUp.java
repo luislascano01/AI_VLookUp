@@ -9,7 +9,7 @@
 	public class InteractiveLookUp {
 		
 		
-		private static String projectBasePath = "/Users/luislascano01/Documents/Sabadell/Covenants_Matching/AI_VLookUp";
+		private static String projectBasePath;
 	
 		private static String refDataPath = projectBasePath + "/Sample_Dataset/Primary_Reference_Table.xlsx";
 		
@@ -17,7 +17,17 @@
 		
 		private static FuzzyDatabase database;
 		
+		public InteractiveLookUp(String projectBasePath) {
+			
+			this.projectBasePath = projectBasePath;
+			
+		}
+		
 		public static void main(String[] args) {
+			
+			
+			String projectBasePath = args[0];
+			
 			Dataframe referenceData = new Dataframe();
 	
 			java.net.URL yamlUrl = BidirectionalGroupMap.class.getResource("/header_configuration.yaml");

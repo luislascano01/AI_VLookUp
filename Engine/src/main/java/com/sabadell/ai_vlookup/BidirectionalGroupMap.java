@@ -1,62 +1,64 @@
 package com.sabadell.ai_vlookup;
 
 import org.yaml.snakeyaml.Yaml;
+
 import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.io.IOException;
-import java.io.File;
-import java.net.URISyntaxException;
 
 /**
  * This class loads reference and target group definitions (including headers
- * and their weights) from a YAML file. Then it builds:
- * 
- * 1. refToGroups: Map<headerName, List<GroupBlock>> 2. targetToGroups:
- * Map<headerName, List<GroupBlock>> 3. refGroupsToTargetGroups: Map<reference
- * GroupBlock, List<target GroupBlock>> 4. targetGroupsToRefGroups: Map<target
- * GroupBlock, List<reference GroupBlock>>
+ * and their weights) from the "BackboneConfiguration" subsection of a YAML
+ * file.
  */
-public class BidirectionalGroupMap implements Serializable{
+public class BidirectionalGroupMap implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	// FIX: Now these maps are keyed by HeaderName -> List of GroupBlock(s)
 	private Map<String, List<GroupBlock>> refToGroups = new HashMap<String, List<GroupBlock>>();
 	private Map<String, List<GroupBlock>> tgtToGroups = new HashMap<String, List<GroupBlock>>();
-
-	// Map for keeping track of the reference groups by name
 	private Map<String, GroupBlock> refGroups = new HashMap<String, GroupBlock>();
-
-	// Map for keeping track of the target groups by name
 	private Map<String, GroupBlock> tgtGroups = new HashMap<String, GroupBlock>();
-
-	// This maps from a single reference group-block to 0..N target group-block(s)
 	private Map<String, List<GroupBlock>> refGroupsToTgtGroups = new HashMap<String, List<GroupBlock>>();
-	// This maps from a single target group-block to 0..N reference group-block(s)
 	private Map<String, List<GroupBlock>> tgtGroupsToRefGroups = new HashMap<String, List<GroupBlock>>();
 
-	private transient Yaml base_yaml;
+	private transient Yaml yaml;
+	
+	
+	
+	
 
 	/**
-	 * Helper method for the constructor to retrieve YAML configuration file.
-	 * 
-	 * @param yamlFile The configuration.yaml file to load.
-	 * @throws IOException
+	 * Constructor: loads the YAML file, parses the "BackboneConfiguration"
+	 * subsection, and populates the data structures.
+	 *
+	 * @param yamlFile The YAML file containing the full configuration.
+	 * @throws IOException if the YAML file is invalid or the
+	 *                     "BackboneConfiguration" is missing.
+	 */
+	public BidirectionalGroupMap(File yamlFile) throws IOException {
+		@SuppressWarnings("unchecked")
+		Map<String, Object> backboneSection= loadConfiguration(yamlFile);
+
+		// Parse the BackboneConfiguration data
+		parseBackboneConfiguration(backboneSection);
+	}
+
+	/**
+	 * Loads the entire YAML configuration file into a Map.
+	 *
+	 * @param yamlFile The YAML file to load.
+	 * @return A Map representing the entire YAML configuration.
+	 * @throws IOException if the YAML file cannot be read or parsed.
 	 */
 	private Map<String, Object> loadConfiguration(File yamlFile) throws IOException {
-		// 1) Load YAML into a Map
-		base_yaml = new Yaml();
-		Map<String, Object> root;
+		yaml = new Yaml();
 		try (InputStream is = new FileInputStream(yamlFile)) {
-			root = this.base_yaml.load(is);
+			return yaml.load(is);
 		} catch (Exception e) {
 			System.err.println("Error reading YAML file:\n" + e.toString());
 			throw new IOException("YAML file is empty or invalid.");
 		}
-
-		return root;
-
 	}
 
 	public List<GroupBlock> getGroupsFromSourceGroupName(String groupName, boolean leftToRight) {
@@ -100,189 +102,103 @@ public class BidirectionalGroupMap implements Serializable{
 	}
 
 	/**
-	 * Constructor: loads the YAML file, parses everything, populates the data
+	 * Parses the BackboneConfiguration subsection and populates internal data
 	 * structures.
+	 *
+	 * @param backboneConfig The "BackboneConfiguration" section of the YAML file.
 	 */
-	public BidirectionalGroupMap(File yamlFile) throws IOException {
-
-		Map<String, Object> root = this.loadConfiguration(yamlFile);
-
-		// 2) Extract the top-level sections
+	private void parseBackboneConfiguration(Map<String, Object> backboneConfig) throws IOException {
 		@SuppressWarnings("unchecked")
-		Map<String, List<String>> referenceGroupsRaw = (Map<String, List<String>>) root.get("reference_groups");
+		Map<String, List<String>> referenceGroupsRaw = (Map<String, List<String>>) backboneConfig
+				.get("reference_groups");
+
 		@SuppressWarnings("unchecked")
-		Map<String, List<String>> targetGroupsRaw = (Map<String, List<String>>) root.get("target_groups");
+		Map<String, List<String>> targetGroupsRaw = (Map<String, List<String>>) backboneConfig.get("target_groups");
+
 		@SuppressWarnings("unchecked")
-		Map<String, Object> refToTgtRaw = (Map<String, Object>) root.get("ref_to_tgt");
+		Map<String, Object> refToTgtRaw = (Map<String, Object>) backboneConfig.get("ref_to_tgt");
+
 		@SuppressWarnings("unchecked")
-		Map<String, Object> tgtToRefRaw = (Map<String, Object>) root.get("tgt_to_ref");
+		Map<String, Object> tgtToRefRaw = (Map<String, Object>) backboneConfig.get("tgt_to_ref");
 
-		// 3) Parse the reference groups into a map: groupName -> GroupBlock
-		Map<String, GroupBlock> refGroupMap = parseGroupBlocksFromYaml(referenceGroupsRaw, this.refGroups);
+		// Parse reference and target groups
+		Map<String, GroupBlock> refGroupMap = parseGroupBlocksFromYaml(referenceGroupsRaw, refGroups);
+		Map<String, GroupBlock> targetGroupMap = parseGroupBlocksFromYaml(targetGroupsRaw, tgtGroups);
 
-		// 4) Parse the target groups into a map: groupName -> GroupBlock
-		Map<String, GroupBlock> targetGroupMap = parseGroupBlocksFromYaml(targetGroupsRaw, this.tgtGroups);
+		// Build refToGroups and tgtToGroups
+		refGroupMap.values().forEach(
+				gb -> gb.getHeaders().forEach(h -> refToGroups.computeIfAbsent(h, k -> new ArrayList<>()).add(gb)));
+		targetGroupMap.values().forEach(
+				gb -> gb.getHeaders().forEach(h -> tgtToGroups.computeIfAbsent(h, k -> new ArrayList<>()).add(gb)));
 
-		// 5) Build refToGroups / targetToGroups, but keyed by header name
-		for (Map.Entry<String, GroupBlock> entry : refGroupMap.entrySet()) {
-			GroupBlock gb = entry.getValue();
-			for (String header : gb.getHeaders()) {
-				refToGroups.computeIfAbsent(header, k -> new ArrayList<>()).add(gb);
-			}
-		}
-
-		for (Map.Entry<String, GroupBlock> entry : targetGroupMap.entrySet()) {
-			GroupBlock gb = entry.getValue();
-			for (String header : gb.getHeaders()) {
-				tgtToGroups.computeIfAbsent(header, k -> new ArrayList<>()).add(gb);
-			}
-		}
-
-		// 6) Parse the relationships into Map<String, List<String>>
-		// (still groupName -> groupName(s))
-
+		// Parse relationships and build mappings
 		Map<String, List<String>> refToTgtRelationships = parseYamlRelationships(refToTgtRaw);
 		Map<String, List<String>> tgtToRefRelationships = parseYamlRelationships(tgtToRefRaw);
 
-		// 7) Build the final relationship maps:
-		// refGroupsToTargetGroups: reference GroupBlock -> list of target GroupBlock(s)
-		// targetGroupsToRefGroups: target GroupBlock -> list of reference GroupBlock(s)
-
-		// -- For "Ref->Tgt": key is a target group name, value is a list of ref group
-		// names
-		// So for each T_GROUP name in the map, we get the T_GROUP block, then for each
-		// ref group name that maps to that T_GROUP, we add that T_GROUP block to
-		// refBlock's list.
-		structureSingleDirectionGroupsToGroups(refToTgtRelationships, this.refGroupsToTgtGroups, tgtGroups);
-
-		// -- For "Tgt->Ref": key is a reference group name, value is a list of target
-		// group names
-		// So for each REF group name, we map each T_GROUP block to that REF group block
-		structureSingleDirectionGroupsToGroups(tgtToRefRelationships, this.tgtGroupsToRefGroups, refGroups);
-
+		structureSingleDirectionGroupsToGroups(refToTgtRelationships, refGroupsToTgtGroups, tgtGroups);
+		structureSingleDirectionGroupsToGroups(tgtToRefRelationships, tgtGroupsToRefGroups, refGroups);
 	}
 
-	/**
-	 * Helper method to structure mappings between groups to groups.
-	 * 
-	 * @param rawMap     The map of the source groups parsed from the YAML file
-	 * @param storeMap   The map to sore the parsed relationships
-	 * @param endNameMap The current object's map that links end group names to
-	 *                   their corresponding block.
-	 */
-	private void structureSingleDirectionGroupsToGroups(Map<String, List<String>> rawMap,
-			Map<String, List<GroupBlock>> storeMap, Map<String, GroupBlock> endNameMap) {
-
-		for (Map.Entry<String, List<String>> entry : rawMap.entrySet()) {
-
-			String srcGroupName = entry.getKey();
-
-			List<GroupBlock> endBlocks = new ArrayList<GroupBlock>();
-
-			for (String endGroupName : entry.getValue()) {
-				GroupBlock endGroupBlock = endNameMap.get(endGroupName);
-				endBlocks.add(endGroupBlock);
-			}
-
-			storeMap.put(srcGroupName, endBlocks);
-
-		}
-
-	}
-
-	/**
-	 * Utility method to parse a YAML map of the form:
-	 * 
-	 * key: string OR list of strings
-	 * 
-	 * returning a normalized map:
-	 * 
-	 * key -> list of strings
-	 * 
-	 * For example, "InvoiceDetails": "Transactions" becomes "InvoiceDetails":
-	 * ["Transactions"]
-	 * 
-	 * and "Address": ["Address", "Name"] stays the same.
-	 */
 	private Map<String, List<String>> parseYamlRelationships(Map<String, Object> rawMap) {
 		Map<String, List<String>> result = new LinkedHashMap<>();
-		if (rawMap == null) {
-			return result; // or throw an exception if needed
-		}
+		if (rawMap == null)
+			return result;
 
-		for (Map.Entry<String, Object> entry : rawMap.entrySet()) {
-			String key = entry.getKey();
-			Object val = entry.getValue();
-
-			// If "val" is a string => single-item list
-			// If "val" is a list => cast to List<String>
+		rawMap.forEach((key, val) -> {
 			if (val instanceof String) {
 				result.put(key, Collections.singletonList((String) val));
 			} else if (val instanceof List) {
 				List<?> rawList = (List<?>) val;
-				List<String> strList = new ArrayList<>();
-				for (Object o : rawList) {
-					strList.add(o.toString());
-				}
-				result.put(key, strList);
+				result.put(key, rawList.stream().map(Object::toString).toList());
 			}
-		}
+		});
 		return result;
 	}
 
-	/**
-	 * Parse a YAML map like:
-	 * 
-	 * groupName -> list of "HeaderName(weight)" strings
-	 * 
-	 * returning a map:
-	 * 
-	 * groupName -> GroupBlock
-	 */
 	private Map<String, GroupBlock> parseGroupBlocksFromYaml(Map<String, List<String>> groupsMap,
-			Map<String, GroupBlock> groupNameMap) throws IOException {
+			Map<String, GroupBlock> groupNameMap) {
 		Map<String, GroupBlock> groupMap = new HashMap<>();
+		if (groupsMap == null)
+			return groupMap;
 
-		if (groupsMap == null) {
-			return groupMap; // or throw an exception if needed
-		}
-
-		// We'll reuse the same regex logic as before
 		Pattern p = Pattern.compile("(\\S+)\\((\\d+(\\.\\d+)?)\\)");
 
-		for (Map.Entry<String, List<String>> entry : groupsMap.entrySet()) {
-			String groupName = entry.getKey();
-			List<String> rawHeaders = entry.getValue();
-			if (rawHeaders == null || rawHeaders.isEmpty()) {
-				continue;
-			}
-
+		groupsMap.forEach((groupName, rawHeaders) -> {
 			List<String> headerList = new ArrayList<>();
 			List<Double> weightList = new ArrayList<>();
 
-			// Parse each "Header_1(3)" style string
-			for (String spec : rawHeaders) {
+			rawHeaders.forEach(spec -> {
 				Matcher m = p.matcher(spec.trim());
 				if (m.find()) {
-					String headerName = m.group(1);
-					Double weightValue = Double.valueOf(m.group(2));
-					headerList.add(headerName);
-					weightList.add(weightValue);
+					headerList.add(m.group(1));
+					weightList.add(Double.valueOf(m.group(2)));
 				}
-			}
+			});
 
 			if (!headerList.isEmpty()) {
-				// Sum for overallWeight
-				Double overallWeight = weightList.stream().mapToDouble(Double::doubleValue).sum();
-
-				GroupBlock gb = new GroupBlock(groupName, headerList.toArray(new String[0]),
-						weightList.toArray(new Double[0]), overallWeight);
+				double overallWeight = weightList.stream().mapToDouble(Double::doubleValue).sum();
+				GroupBlock gb = null;
+				try {
+					gb = new GroupBlock(groupName, headerList.toArray(new String[0]), weightList.toArray(new Double[0]),
+							overallWeight);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				groupMap.put(groupName, gb);
 				groupNameMap.put(groupName, gb);
-
 			}
-		}
+		});
+
 		return groupMap;
+	}
+
+	private void structureSingleDirectionGroupsToGroups(Map<String, List<String>> rawMap,
+			Map<String, List<GroupBlock>> storeMap, Map<String, GroupBlock> endNameMap) {
+		rawMap.forEach((srcGroupName, endGroupNames) -> {
+			List<GroupBlock> endBlocks = endGroupNames.stream().map(endNameMap::get).filter(Objects::nonNull).toList();
+			storeMap.put(srcGroupName, endBlocks);
+		});
 	}
 
 	/**
@@ -518,31 +434,38 @@ public class BidirectionalGroupMap implements Serializable{
 	 * Quick test main
 	 */
 	public static void main(String[] args) throws Exception {
-		// 1) Locate the YAML file
-		java.net.URL yamlUrl = BidirectionalGroupMap.class.getResource("/header_configuration_moc.yaml");
-		if (yamlUrl == null) {
-			throw new IllegalStateException("Could not find 'header_configuration.yaml' in resources folder!");
+		if (args.length < 1) {
+			System.out.println("Usage: java BidirectionalGroupMap <yamlFilePath>");
+			return;
 		}
 
-		// 2) Convert that URL into a File object
-		File yamlFile;
-		try {
-			yamlFile = new File(yamlUrl.toURI());
-		} catch (URISyntaxException e) {
-			// fallback if there's something off about the URI
-			yamlFile = new File(yamlUrl.getPath());
+		// 1) Retrieve the YAML file path from the command-line arguments
+		String yamlFilePath = args[0];
+		File yamlFile = new File(yamlFilePath);
+
+		// 2) Validate the YAML file path
+		if (!yamlFile.exists() || !yamlFile.isFile()) {
+			System.err.println("Invalid YAML file path provided: " + yamlFilePath);
+			return;
 		}
 
-		// 3) Instantiate BidirectionalGroupMap using the YAML
+		// 3) Instantiate BidirectionalGroupMap using the provided YAML file
 		BidirectionalGroupMap map = new BidirectionalGroupMap(yamlFile);
 
 		// 4) Generate the LaTeX graph code
 		String latexCode = map.toLatexGraph();
 
-		// 5) Print it out
+		// 5) Print the LaTeX code to the console
 		System.out.println(latexCode);
 
-		// Optionally write it to a file, etc.
-		// Files.write(Paths.get("my_diagram.tex"), latexCode.getBytes());
+		// 6) Optionally, save the LaTeX code to a file
+		String outputPath = "graph_diagram.tex"; // Change as needed
+		try (PrintWriter writer = new PrintWriter(new FileWriter(outputPath))) {
+			writer.write(latexCode);
+			System.out.println("LaTeX code written to: " + outputPath);
+		} catch (IOException e) {
+			System.err.println("Failed to write LaTeX code to file: " + e.getMessage());
+			e.printStackTrace();
+		}
 	}
 }

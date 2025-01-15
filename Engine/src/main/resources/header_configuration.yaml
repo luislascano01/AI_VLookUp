@@ -1,35 +1,38 @@
-reference_groups:
-  ID:
-    - "Customer_ID(1)"
-  Name:
-    - "Customer_ID(2)"
-    - "Customer_Name(6)"
-    - "Industrial_Sector(2)"
-  Address:
-    - "Customer_Name(1)"
-    - "Address(6)"
-
-target_groups:
-  ID:
-    - "Customer_ID(5)"
-    - "Customer_Name(1)"
-  Name:
-    - "Customer_Name(4)"
-    - "Customer_ID(1)"
-    - "Industrial_Sector(1)"
-  Address:
-    - "Customer_Name(1)"
-    - "Address(6)"
-    - "Industrial_Sector(1)"
-
-ref_to_tgt:
-  ID: "ID"
-  Name: "Name"
-  Address: "Address"
-
-tgt_to_ref:
-  ID: "ID"
-  Name: "Name"
-  Address:
-    - "Address"
-    - "Name"
+FuzzyDatabaseConfig:
+  BackboneConfiguration:
+    reference_groups:
+      ID:
+        - "Customer_ID(1)" # Must be only one
+      Name:
+        - "Customer_ID(2)"
+        - "Customer_Name(6)"
+        - "Industrial_Sector(2)"
+      Address:
+        - "Customer_Name(1)"
+        - "Address(6)"
+    target_groups:
+      ID:
+        - "Customer_ID(5)"
+        - "Customer_Name(1)"
+      Name:
+        - "Customer_Name(4)"
+        - "Customer_ID(1)"
+        - "Industrial_Sector(1)"
+      Address:
+        - "Customer_Name(1)"
+        - "Address(6)"
+        - "Industrial_Sector(1)"
+    ref_to_tgt:
+      ID: "ID"
+      Name: "Name"
+      Address: "Address"
+    tgt_to_ref:
+      ID: "ID"
+      Name: "Name"
+      Address:
+        - "Address"
+        - "Name"
+  DataToConsume:
+    ReferenceTable: "/Users/luislascano01/Documents/Sabadell/Covenants_Matching/AI_VLookUp/Sample_Dataset/Primary_Reference_Table.xlsx"
+    MessyTable: "/Users/luislascano01/Documents/Sabadell/Covenants_Matching/AI_VLookUp/Sample_Dataset/Secondary_Data.xlsx"
+  OperatingDir: "/Users/luislascano01/Documents/Sabadell/Covenants_Matching/AI_VLookUp/OperatingDir"
