@@ -9,6 +9,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A Dataframe that loads rows from an Excel sheet. Each row is stored as a
@@ -125,6 +127,56 @@ public class Dataframe implements Iterable<Map<String, String>>, Serializable {
 				rowIndex++;
 			}
 		}
+	}
+
+	/**
+	 * Applies regular expression transformations to specific columns in the
+	 * Dataframe. This method processes columns in the dataset and applies the given
+	 * regex, replacing the column value with the first group captured.
+	 *
+	 * @param columnHeaderToRegexMap A mapping of column names to their respective
+	 *                               regex patterns.
+	 */
+	public Map<String, Integer> preProcessRegex(Map<String, String> columnHeaderToRegexMap) {
+		Map<String, Integer> captureCounter = new HashMap<String, Integer>(); 
+		// Iterate over the specified columns in the map
+		for (Map.Entry<String, String> entry : columnHeaderToRegexMap.entrySet()) {
+			String column = entry.getKey(); // The column name
+			String regex = entry.getValue(); // The regex pattern for this column
+			
+			// Ensure the column exists in the Dataframe
+			if (!columnLabels.contains(column)) {
+				System.err.println("Warning: Column '" + column + "' does not exist in the Dataframe. Skipping.");
+				continue;
+			}
+
+			// Compile the regex pattern
+			Pattern pattern = Pattern.compile(regex);
+			
+			int matchingEntries = 0;
+			
+			// Iterate over each row to apply the regex
+			for (Map<String, String> row : data) {
+				String originalValue = row.get(column);
+				if (originalValue == null || originalValue.isEmpty()) {
+					continue; // Skip empty or null values
+				}
+
+				// Match the regex on the current value
+				Matcher matcher = pattern.matcher(originalValue);
+				if (matcher.find() && matcher.groupCount() >= 1) {
+					// Replace with the first group captured
+					row.put(column, matcher.group(1));
+					matchingEntries++;
+				}
+			}
+			
+			// Place the count of entries that satisfied the Regex in the "Header->Count" map.
+			
+			captureCounter.put(column, matchingEntries);
+		}
+		
+		return captureCounter;
 	}
 
 	/**

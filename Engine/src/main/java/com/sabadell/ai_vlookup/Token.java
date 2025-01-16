@@ -64,6 +64,7 @@ public class Token implements Serializable {
 					// tokens.add(token);
 					tokens.add(token);
 					tokens.add(token);
+					tokens.add(token);
 					// tokens.add(token);// Keep numeric IDs intact
 				} else {
 					// tokens.addAll(generateCuts(token.toLowerCase(), 3));
@@ -112,7 +113,7 @@ public class Token implements Serializable {
 	 * @return True if the token is a numeric ID, false otherwise.
 	 */
 	private static boolean isNumericId(String token) {
-		return token.matches("\\d{4,}"); // Matches numbers with 3 or more digits
+		return token.matches("\\d{4,}"); // Matches numbers with 4 or more digits
 	}
 
 	/**
