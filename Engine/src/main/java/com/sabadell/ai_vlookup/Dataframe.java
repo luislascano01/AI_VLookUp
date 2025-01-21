@@ -11,6 +11,8 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * A Dataframe that loads rows from an Excel sheet. Each row is stored as a
@@ -138,12 +140,12 @@ public class Dataframe implements Iterable<Map<String, String>>, Serializable {
 	 *                               regex patterns.
 	 */
 	public Map<String, Integer> preProcessRegex(Map<String, String> columnHeaderToRegexMap) {
-		Map<String, Integer> captureCounter = new HashMap<String, Integer>(); 
+		Map<String, Integer> captureCounter = new HashMap<String, Integer>();
 		// Iterate over the specified columns in the map
 		for (Map.Entry<String, String> entry : columnHeaderToRegexMap.entrySet()) {
 			String column = entry.getKey(); // The column name
 			String regex = entry.getValue(); // The regex pattern for this column
-			
+
 			// Ensure the column exists in the Dataframe
 			if (!columnLabels.contains(column)) {
 				System.err.println("Warning: Column '" + column + "' does not exist in the Dataframe. Skipping.");
@@ -152,9 +154,9 @@ public class Dataframe implements Iterable<Map<String, String>>, Serializable {
 
 			// Compile the regex pattern
 			Pattern pattern = Pattern.compile(regex);
-			
+
 			int matchingEntries = 0;
-			
+
 			// Iterate over each row to apply the regex
 			for (Map<String, String> row : data) {
 				String originalValue = row.get(column);
@@ -170,13 +172,35 @@ public class Dataframe implements Iterable<Map<String, String>>, Serializable {
 					matchingEntries++;
 				}
 			}
-			
-			// Place the count of entries that satisfied the Regex in the "Header->Count" map.
-			
+
+			// Place the count of entries that satisfied the Regex in the "Header->Count"
+			// map.
+
 			captureCounter.put(column, matchingEntries);
 		}
-		
+
 		return captureCounter;
+	}
+
+	/**
+	 * Returns a list of rows corresponding to the passed list of indices.
+	 *
+	 * @param indices List of zero-based indices of the rows to retrieve.
+	 * @return A list of Map<String, String> representing the selected rows' data.
+	 */
+	public List<Map<String, String>> get(List<Integer> indices) {
+		// Use a HashSet for constant time complexity look-up
+		Set<Integer> indexSet = new HashSet<>(indices);
+
+		// Stream over the data and collect rows where their index is in the indexSet
+		List<Map<String, String>> selectedRows = IntStream.range(0, data.size()).filter(indexSet::contains)
+				.mapToObj(data::get).collect(Collectors.toList());
+
+		// Add a "1" to all entries under the key "matchedByID"
+
+		selectedRows.forEach(row -> row.put("matchedByID", "1"));
+
+		return selectedRows;
 	}
 
 	/**

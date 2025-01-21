@@ -3,6 +3,7 @@ package com.sabadell.ai_vlookup;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.io.Serializable;
@@ -10,6 +11,7 @@ import java.io.ObjectOutputStream;
 import java.io.FileOutputStream;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
+import info.debatty.java.stringsimilarity.Damerau;
 
 /**
  * Represents a fuzzy logic-based database that allows data to be tokenized and
@@ -42,34 +44,37 @@ public class FuzzyDatabase implements Serializable {
 		this.name = name;
 	}
 
-
 	/**
 	 * Saves the current state of the FuzzyDatabase instance to a file.
 	 * 
 	 * @param filePath The full path to the file where the database should be saved.
-	 * This method serializes the entire FuzzyDatabase object and writes it to the specified file.
-	 * If the parent directories of the file do not exist, they will be created.
-	 * If the file does not exist, it will be created automatically. If the file exists, it will be overwritten.
-	 * Proper error handling is implemented to catch and log any IO exceptions that may occur during the process.
+	 *                 This method serializes the entire FuzzyDatabase object and
+	 *                 writes it to the specified file. If the parent directories of
+	 *                 the file do not exist, they will be created. If the file does
+	 *                 not exist, it will be created automatically. If the file
+	 *                 exists, it will be overwritten. Proper error handling is
+	 *                 implemented to catch and log any IO exceptions that may occur
+	 *                 during the process.
 	 */
 	public void saveDatabaseToFile(String filePath) {
-	    try {
-	        // Prepare the file object and check if parent directories need to be created
-	        File file = new File(filePath);
-	        File parentDirectory = file.getParentFile();
-	        if (parentDirectory != null && !parentDirectory.exists()) {
-	            parentDirectory.mkdirs(); // Create the directory structure if it does not exist
-	        }
+		try {
+			// Prepare the file object and check if parent directories need to be created
+			File file = new File(filePath);
+			File parentDirectory = file.getParentFile();
+			if (parentDirectory != null && !parentDirectory.exists()) {
+				parentDirectory.mkdirs(); // Create the directory structure if it does not exist
+			}
 
-	        // Create a file output stream wrapped by an object output stream
-	        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file))) {
-	            out.writeObject(this); // Serialize this FuzzyDatabase instance to the file
-	        }
-	    } catch (IOException e) {
-	        // Log exceptions to standard error
-	        e.printStackTrace();
-	    }
+			// Create a file output stream wrapped by an object output stream
+			try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file))) {
+				out.writeObject(this); // Serialize this FuzzyDatabase instance to the file
+			}
+		} catch (IOException e) {
+			// Log exceptions to standard error
+			e.printStackTrace();
+		}
 	}
+
 	/**
 	 * Loads a FuzzyDatabase instance from a specified file.
 	 * 
@@ -102,8 +107,22 @@ public class FuzzyDatabase implements Serializable {
 		this.sourceDataFrame = df;
 		List<String> inputHeaders = this.backbone.getInputHeaders(true);
 
-		for (Map<String, String> rowData : df) { // Iterate over all rows
-			for (String inputHeader : inputHeaders) { // Process required columns
+		ProgressDisplay progressBar = new ProgressDisplay(df.size());
+
+		System.out.println("Loading reference data...");
+
+		for (Map<String, String> rowData : df) {
+			// Iterate over all rows
+			try {
+				progressBar.displayProgressAuto();
+
+			} catch (IOException e) {
+
+				System.out.println("Error when trying to display progress bar in terminal");
+			}
+
+			for (String inputHeader : inputHeaders) {
+
 				String currCellData = rowData.get(inputHeader); // Get cell data
 				String rowIdx = rowData.get("index"); // Get row index
 
@@ -125,7 +144,7 @@ public class FuzzyDatabase implements Serializable {
 
 					Double weight = currBlock.getHeaderWeight(inputHeader); // Header weight
 					BucketEntry bucketEntry = new BucketEntry(Integer.parseInt(rowIdx), weight);
-					
+
 					for (String token : tokens) {
 						currPool.placeEntry(token, bucketEntry); // Place token in pool
 					}
@@ -134,18 +153,122 @@ public class FuzzyDatabase implements Serializable {
 				}
 			}
 		}
-	}
-	
-	private void cleanPreviousQueryData() {
-		
-		Map<String, GroupBlock> toClean = this.backbone.getGroups(false);
-		
-		for(Map.Entry<String, GroupBlock> blockEntry : toClean.entrySet()) {
-			
-			blockEntry.getValue().setData(null);
-			
+		try {
+			progressBar.finishProgress();
+		} catch (IOException e) {
+			System.err.println("Error closing progress display.");
+			e.printStackTrace();
 		}
-		
+
+	}
+
+	private void cleanPreviousQueryData() {
+
+		Map<String, GroupBlock> toClean = this.backbone.getGroups(false);
+
+		for (Map.Entry<String, GroupBlock> blockEntry : toClean.entrySet()) {
+
+			blockEntry.getValue().setData(null);
+
+		}
+
+	}
+
+	/**
+	 * This method leverages the Hashmap-based backbone of the database to perform a
+	 * quick query given some "key". By key, it is expected that the look up returns
+	 * the fewer results as possible. Each backbone has a "key" column for each side
+	 * of the bidirectional mapping relationship. The method returns all entries
+	 * that completely match the provided key under the key column; meaning that
+	 * both contents must be equal to each other before returning a "matching
+	 * value".
+	 * 
+	 * @return ArrayList<Integer> Indexes of the matching entries.
+	 */
+	public List<Integer> lookUpEntryByID(String keyToLookUp, Map<String, String> rowData) {
+
+		List<Integer> matchingIdxs = new ArrayList<Integer>();
+
+		List<GroupBlock> idGroups = this.backbone.getGroupsFromHeader(this.backbone.getReferenceKeyHeader(), true);
+
+		for (GroupBlock currGroup : idGroups) {
+
+			if (currGroup.getData() != null && currGroup.getData() instanceof Pool) {
+
+				Pool currPool = (Pool) currGroup.getData();
+
+				HashBucket matchingBucket = currPool.getHashBucket(keyToLookUp);
+
+				if (matchingBucket != null) {
+
+					ArrayList<BucketEntry> matchingEntries = matchingBucket.getEntries();
+
+					for (BucketEntry matchingEntry : matchingEntries) {
+
+						int matchingIdx = matchingEntry.getEntryIdx();
+
+						matchingIdxs.add(matchingIdx);
+
+					}
+
+				}
+			}
+
+		}
+
+		return matchingIdxs;
+
+	}
+
+	/**
+	 * Compares two map entries using the Damerau-Levenshtein distance. This is a
+	 * simple coefficient.
+	 * 
+	 * A more advanced method that would carry the same purpose of this method would
+	 * be to compare the overlapping buckets between the entries and find a average
+	 * of both sets ratios (overlappingSize/(queryBucketSize)) TODO: Check this set
+	 * logic.
+	 *
+	 * @param target    The target map of String pairs.
+	 * @param reference The reference map of String pairs.
+	 * @return A Double representing the similarity score (1.0 - max similarity, 0.0
+	 *         - min similarity).
+	 */
+	public Double compareEntries(Map<String, String> target, Map<String, String> reference) {
+		// Concatenate all values from each map into a single string
+		String targetValues = concatenateSortedValues(target);
+		String referenceValues = concatenateSortedValues(reference);
+
+		// Calculate Damerau-Levenshtein distance
+		Damerau damerau = new Damerau();
+		double distance = damerau.distance(targetValues, referenceValues);
+
+		// Normalize distance based on the maximum possible distance (which would be the
+		// length of the longer string)
+		double maxLen = Math.max(targetValues.length(), referenceValues.length());
+		if (maxLen == 0) {
+			return 1.0; // Both are empty strings
+		}
+
+		// Normalize to get a similarity score
+		return 1.0 - (distance / maxLen);
+	}
+
+	/**
+	 * Concatenates sorted values of a map into a single string.
+	 *
+	 * @param map The map whose values are to be concatenated.
+	 * @return A sorted, space-separated string of the map's values.
+	 */
+	private String concatenateSortedValues(Map<String, String> map) {
+		ArrayList<String> values = new ArrayList<>(map.values());
+		Collections.sort(values);
+		StringBuilder sb = new StringBuilder();
+		for (String value : values) {
+			sb.append(value);
+			sb.append(" "); // Adding a space to separate the values
+		}
+		return sb.toString().trim();
 	}
 
 	/**
@@ -157,10 +280,27 @@ public class FuzzyDatabase implements Serializable {
 	 * @return A list of matching rows with weights, sorted by relevance.
 	 */
 	public ArrayList<Map<String, String>> lookUpEntry(Map<String, String> rowData) {
-		
+
 		this.cleanPreviousQueryData();
-		
-		ArrayList<Map<String, String>> matchingEntries = new ArrayList<>();
+
+		ArrayList<Map<String, String>> matchingEntries = new ArrayList<Map<String, String>>();
+
+		String keyHeaderTarget = this.backbone.getTargetKeyHeader();
+
+		String keyToLookUp = rowData.get(keyHeaderTarget);
+
+		if (keyToLookUp != null) {
+
+			List<Integer> exactKeyMatchesIdxs = this.lookUpEntryByID(keyToLookUp, rowData);
+
+			List<Map<String, String>> exactKeyMatches = this.sourceDataFrame.get(exactKeyMatchesIdxs);
+
+			if (exactKeyMatches.size() > 0) {
+				matchingEntries.addAll(exactKeyMatches);
+				return matchingEntries;
+			}
+		}
+
 		List<String> queryHeaders = backbone.getInputHeaders(false);
 		QueryAnalyzer queryAnalyzer = new QueryAnalyzer(rowData, queryHeaders);
 
@@ -177,7 +317,7 @@ public class FuzzyDatabase implements Serializable {
 						groupTokens.addAll(tokenizedEntry);
 					}
 				} else {
-					List<String> groupTokens = new ArrayList<>(tokenizedEntry);	
+					List<String> groupTokens = new ArrayList<>(tokenizedEntry);
 					targetGroupBlock.setData(groupTokens);
 				}
 			}

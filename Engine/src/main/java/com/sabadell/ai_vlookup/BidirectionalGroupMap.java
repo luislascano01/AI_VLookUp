@@ -22,11 +22,18 @@ public class BidirectionalGroupMap implements Serializable {
 	private Map<String, List<GroupBlock>> refGroupsToTgtGroups = new HashMap<String, List<GroupBlock>>();
 	private Map<String, List<GroupBlock>> tgtGroupsToRefGroups = new HashMap<String, List<GroupBlock>>();
 
+	private String referenceKeyHeader = null;
+	private String targetKeyHeader = null;
+
 	private transient Yaml yaml;
-	
-	
-	
-	
+
+	public String getReferenceKeyHeader() {
+		return this.referenceKeyHeader;
+	}
+
+	public String getTargetKeyHeader() {
+		return this.targetKeyHeader;
+	}
 
 	/**
 	 * Constructor: loads the YAML file, parses the "BackboneConfiguration"
@@ -38,7 +45,7 @@ public class BidirectionalGroupMap implements Serializable {
 	 */
 	public BidirectionalGroupMap(File yamlFile) throws IOException {
 		@SuppressWarnings("unchecked")
-		Map<String, Object> backboneSection= loadConfiguration(yamlFile);
+		Map<String, Object> backboneSection = loadConfiguration(yamlFile);
 
 		// Parse the BackboneConfiguration data
 		parseBackboneConfiguration(backboneSection);
@@ -108,6 +115,8 @@ public class BidirectionalGroupMap implements Serializable {
 	 * @param backboneConfig The "BackboneConfiguration" section of the YAML file.
 	 */
 	private void parseBackboneConfiguration(Map<String, Object> backboneConfig) throws IOException {
+		this.referenceKeyHeader = (String) backboneConfig.get("reference_key_col");
+		this.targetKeyHeader = (String) backboneConfig.get("target_key_col");
 		@SuppressWarnings("unchecked")
 		Map<String, List<String>> referenceGroupsRaw = (Map<String, List<String>>) backboneConfig
 				.get("reference_groups");

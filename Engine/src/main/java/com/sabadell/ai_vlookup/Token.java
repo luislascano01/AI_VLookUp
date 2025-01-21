@@ -64,7 +64,6 @@ public class Token implements Serializable {
 					// tokens.add(token);
 					tokens.add(token);
 					tokens.add(token);
-					tokens.add(token);
 					// tokens.add(token);// Keep numeric IDs intact
 				} else {
 					// tokens.addAll(generateCuts(token.toLowerCase(), 3));

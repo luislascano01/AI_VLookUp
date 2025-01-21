@@ -157,20 +157,25 @@ public class FullVLookUp {
 			Map<String, Integer> regexCounts = queryData.preProcessRegex(this.preProcessRegexMap); // Functionality here
 
 			List<Map<String, String>> resultsList = new ArrayList<Map<String, String>>();
-			List<Integer[]> resultPairs = new ArrayList<Integer[]>();
+			List<String[]> resultPairs = new ArrayList<String[]>();
 
 			// Perform query for each row in the query Dataframe
 			for (Map<String, String> query : queryData) {
-				int queryVerifyID = Integer.parseInt(query.get("Verify_ID"));
+				// int queryVerifyID = Integer.parseInt(query.get("Verify_ID"));
+				int queryIdx = Integer.parseInt(query.get("index"));
 				ArrayList<Map<String, String>> results = fuzzyDatabase.lookUpEntry(query);
+				Double matchingCoefficient = -1.0;
+				int topResultIdx = -1;
+				if (results.size() > 0) {
+					Map<String, String> topEntry = results.get(0);
+					topResultIdx = Integer.parseInt(topEntry.get("index"));
 
-				int topResultIdx = Integer.parseInt(results.get(0).get("Customer_ID"));
+					matchingCoefficient = fuzzyDatabase.compareEntries(query, topEntry);
 
-				Integer[] idPair = new Integer[] { queryVerifyID, topResultIdx };
-
+				}
+				String[] idPair = new String[] { queryIdx + "", topResultIdx + "", matchingCoefficient + "" };
 				resultPairs.add(idPair);
 
-				processResults(query, results);
 				resultsList.add(query);
 			}
 
@@ -184,45 +189,35 @@ public class FullVLookUp {
 		}
 	}
 
-	private void processResults(Map<String, String> query, ArrayList<Map<String, String>> results) {
-		if (results.isEmpty()) {
-			System.out.println("No results found for: " + query);
-		} else {
-			System.out.println("Results for " + query + ":");
-			results.forEach(result -> {
-				result.forEach((key, value) -> System.out.println(key + ": " + value));
-				System.out.println();
-			});
-		}
-	}
-	
 	private String getStats(Dataframe queryData, Map<String, Integer> regexCounts) {
-	    StringBuilder statText = new StringBuilder("############  Stats  ############\n\n");
-	    statText.append("General Stats:\n");
+		StringBuilder statText = new StringBuilder("############  Stats  ############\n\n");
+		statText.append("General Stats:\n");
 
-	    int totalEntries = queryData.size();
-	    statText.append(String.format("Total entries: %d \n\n", totalEntries));
+		int totalEntries = queryData.size();
+		statText.append(String.format("Total entries: %d \n\n", totalEntries));
 
-	    statText.append("Regex Header Stats:\n");
+		statText.append("Regex Header Stats:\n");
 
-	    // Outer border top line
-	    statText.append("+---------------------+--------+------------+\n");
-	    statText.append(String.format("| %-20s | %-6s | %-10s |\n", "Header", "Count", "Percentage"));
-	    statText.append("+---------------------+--------+------------+\n");
+		// Outer border top line
+		statText.append("+---------------------+--------+------------+\n");
+		statText.append(String.format("| %-20s | %-6s | %-10s |\n", "Header", "Count", "Percentage"));
+		statText.append("+---------------------+--------+------------+\n");
 
-	    for (Map.Entry<String, Integer> entry : regexCounts.entrySet()) {
-	        double percentage = (entry.getValue() * 100.0) / totalEntries;
-	        // Adjusted the percentage format to ensure it does not include unwanted space or characters.
-	        statText.append(String.format("| %-20s | %-6d | %9.2f%% |\n", entry.getKey(), entry.getValue(), percentage));
-	    }
+		for (Map.Entry<String, Integer> entry : regexCounts.entrySet()) {
+			double percentage = (entry.getValue() * 100.0) / totalEntries;
+			// Adjusted the percentage format to ensure it does not include unwanted space
+			// or characters.
+			statText.append(
+					String.format("| %-20s | %-6d | %9.2f%% |\n", entry.getKey(), entry.getValue(), percentage));
+		}
 
-	    // Outer border bottom line
-	    statText.append("+---------------------+--------+------------+\n");
+		// Outer border bottom line
+		statText.append("+---------------------+--------+------------+\n");
 
-	    return statText.toString();
+		return statText.toString();
 	}
 
-	private void outputResultsMap(List<Integer[]> resultPairs) {
+	private void outputResultsMap(List<String[]> resultPairs) {
 		int processedCount = resultPairs.size();
 
 		System.out.format("Total number of entries processed: %d", processedCount);
@@ -231,20 +226,19 @@ public class FullVLookUp {
 
 		try (PrintWriter writer = new PrintWriter(new FileWriter(outputFilePath))) {
 			// Writing headers
-			writer.println("source,target");
+			writer.println("query,match,coefficient");
 
-			for (Integer[] resultMap : resultPairs) {
-				Integer source = resultMap[0];
-				Integer target = resultMap[1];
-				writer.printf("%d,%d\n", source, target);
+			for (String[] resultMap : resultPairs) {
+				int source = Integer.parseInt(resultMap[0]);
+				int target = Integer.parseInt(resultMap[1]);
+				Double coefficient = Double.parseDouble(resultMap[2]);
+				writer.printf("%d,%d,%.3f\n", source, target, coefficient);
 			}
 		} catch (IOException e) {
 			System.err.println("Failed to write results to CSV: " + e.getMessage());
 			e.printStackTrace();
 		}
 	}
-
-
 
 	public static void main(String[] args) {
 		if (args.length < 1) {
