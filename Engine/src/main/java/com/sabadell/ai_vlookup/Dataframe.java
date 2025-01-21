@@ -268,7 +268,7 @@ public class Dataframe implements Iterable<Map<String, String>>, Serializable {
 	 */
 	public void display() {
 		System.out.println(String.join(" | ", columnLabels));
-		System.out.println("-".repeat(columnLabels.size() * 10)); // Separator
+		System.out.println("-------------------------------------------"); // Separator
 
 		for (Map<String, String> row : data) {
 			for (String label : columnLabels) {

@@ -6,6 +6,7 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * This class loads reference and target group definitions (including headers
@@ -158,7 +159,7 @@ public class BidirectionalGroupMap implements Serializable {
 				result.put(key, Collections.singletonList((String) val));
 			} else if (val instanceof List) {
 				List<?> rawList = (List<?>) val;
-				result.put(key, rawList.stream().map(Object::toString).toList());
+				result.put(key, rawList.stream().map(Object::toString).collect(Collectors.toList()));
 			}
 		});
 		return result;
@@ -205,7 +206,8 @@ public class BidirectionalGroupMap implements Serializable {
 	private void structureSingleDirectionGroupsToGroups(Map<String, List<String>> rawMap,
 			Map<String, List<GroupBlock>> storeMap, Map<String, GroupBlock> endNameMap) {
 		rawMap.forEach((srcGroupName, endGroupNames) -> {
-			List<GroupBlock> endBlocks = endGroupNames.stream().map(endNameMap::get).filter(Objects::nonNull).toList();
+			List<GroupBlock> endBlocks = endGroupNames.stream().map(endNameMap::get).filter(Objects::nonNull)
+					.collect(Collectors.toList())	;
 			storeMap.put(srcGroupName, endBlocks);
 		});
 	}

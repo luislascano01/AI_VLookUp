@@ -270,6 +270,15 @@ public class FuzzyDatabase implements Serializable {
 		}
 		return sb.toString().trim();
 	}
+	
+	public boolean compareByID(Map<String, String> reference, Map<String, String> target) {
+
+		String referenceID = reference.get(this.backbone.getReferenceKeyHeader());
+		String targetID = target.get(this.backbone.getTargetKeyHeader());
+		
+		return referenceID.equalsIgnoreCase(targetID);
+		
+	}
 
 	/**
 	 * Performs a fuzzy lookup for a given row of data and returns matching entries.

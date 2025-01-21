@@ -165,15 +165,16 @@ public class FullVLookUp {
 				int queryIdx = Integer.parseInt(query.get("index"));
 				ArrayList<Map<String, String>> results = fuzzyDatabase.lookUpEntry(query);
 				Double matchingCoefficient = -1.0;
+				boolean sameID = false;
 				int topResultIdx = -1;
 				if (results.size() > 0) {
 					Map<String, String> topEntry = results.get(0);
 					topResultIdx = Integer.parseInt(topEntry.get("index"));
-
 					matchingCoefficient = fuzzyDatabase.compareEntries(query, topEntry);
-
+					sameID = fuzzyDatabase.compareByID(topEntry, query);
 				}
-				String[] idPair = new String[] { queryIdx + "", topResultIdx + "", matchingCoefficient + "" };
+				String[] idPair = new String[] { queryIdx + "", topResultIdx + "", matchingCoefficient + "",
+						sameID + "" };
 				resultPairs.add(idPair);
 
 				resultsList.add(query);
@@ -220,19 +221,20 @@ public class FullVLookUp {
 	private void outputResultsMap(List<String[]> resultPairs) {
 		int processedCount = resultPairs.size();
 
-		System.out.format("Total number of entries processed: %d", processedCount);
+		System.out.format("Total number of 	entries processed: %d", processedCount);
 
 		String outputFilePath = operatingDir + "/results.csv"; // Save results in the operating directory
 
 		try (PrintWriter writer = new PrintWriter(new FileWriter(outputFilePath))) {
 			// Writing headers
-			writer.println("query,match,coefficient");
+			writer.println("query,match,coefficient,idMatch");
 
 			for (String[] resultMap : resultPairs) {
 				int source = Integer.parseInt(resultMap[0]);
 				int target = Integer.parseInt(resultMap[1]);
 				Double coefficient = Double.parseDouble(resultMap[2]);
-				writer.printf("%d,%d,%.3f\n", source, target, coefficient);
+				boolean matchingById = Boolean.parseBoolean(resultMap[3]);
+				writer.printf("%d,%d,%.3f,%b\n", source, target, coefficient, matchingById);
 			}
 		} catch (IOException e) {
 			System.err.println("Failed to write results to CSV: " + e.getMessage());
