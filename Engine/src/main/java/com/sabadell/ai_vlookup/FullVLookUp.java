@@ -234,7 +234,7 @@ public class FullVLookUp {
 				int target = Integer.parseInt(resultMap[1]);
 				Double coefficient = Double.parseDouble(resultMap[2]);
 				boolean matchingById = Boolean.parseBoolean(resultMap[3]);
-				writer.printf("%d,%d,%.3f,%b\n", source, target, coefficient, matchingById);
+				writer.printf("%d,%d,%.3f,%d\n", source, target, coefficient, matchingById ? 1 : 0);
 			}
 		} catch (IOException e) {
 			System.err.println("Failed to write results to CSV: " + e.getMessage());

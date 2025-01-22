@@ -276,7 +276,13 @@ public class FuzzyDatabase implements Serializable {
 		String referenceID = reference.get(this.backbone.getReferenceKeyHeader());
 		String targetID = target.get(this.backbone.getTargetKeyHeader());
 		
-		return referenceID.equalsIgnoreCase(targetID);
+		
+		if(referenceID != null && targetID != null) {
+			
+			return referenceID.equalsIgnoreCase(targetID);
+		}	
+		
+		return false;
 		
 	}
 
