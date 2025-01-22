@@ -16,19 +16,21 @@ public class Token implements Serializable {
 	public static final HashMap<String, List<String>> stopWords = new HashMap<>();
 
 	static {
-		stopWords.put("Common", Arrays.asList("Incorporated", "Corporation", "Company", "Limited", "LLC", "Inc.",
-				"Corp.", "Co.", "Ltd.", "LLP", "LP", "L.P.", "L.L.P.", "P.C.", "PLLC", "Corp", "Inc", "Partnership",
-				"Group", "Association", "Holdings", "Enterprise", "Enterprises", "Firm", "Trust", "Foundation",
-				"Institution", "Organization", "Estate", "Union", "Consortium", "Joint Venture", "JV", "Venture",
-				"LLC.",
+		stopWords.put("Common",
+				Arrays.asList("Incorporated", "Corporation", "Company", "Limited", "LLC", "Inc.", "Corp.", "Co.",
+						"Ltd.", "LLP", "LP", "L.P.", "L.L.P.", "P.C.", "PLLC", "Corp", "Inc", "Partnership", "Group",
+						"Association", "Holdings", "Enterprise", "Enterprises", "Firm", "Trust", "Foundation",
+						"Institution", "Organization", "Estate", "Union", "Consortium", "Joint Venture", "JV",
+						"Venture", "LLC.",
 
-				// Spanish Stop Words for Business Entities
-				"Sociedad Anonima", "Compania Limitada", "Sociedad de Responsabilidad Limitada", "Sociedad Limitada",
-				"S.L.", "S.A.", "SA", "S.L.N.E.", "S.R.L.", "S.A.S.", "S. de R.L.", "S.C.", "S.C.S.", "S.Coop.",
-				"S.A. de C.V.", "Grupo", "Asociacion", "Fundacion", "Union", "Cooperativa", "Corporacion", "Compania",
-				"Negocios", "Empresa", "Empresas", "Comercio", "Sociedad", "Fideicomiso", "Consorcio", "Alianza",
-				"Entidad", "S.C.S.", "S.Coop.", "S.A. de C.V.", "Grupo", "Asociacion", "City" // Spanish
-		).stream().map(String::toLowerCase).collect(Collectors.toList())); // Normalize stop words to lowercase
+						// Spanish Stop Words for Business Entities
+						"Sociedad Anonima", "Compania Limitada", "Sociedad de Responsabilidad Limitada",
+						"Sociedad Limitada", "S.L.", "S.A.", "SA", "S.L.N.E.", "S.R.L.", "S.A.S.", "S. de R.L.", "S.C.",
+						"S.C.S.", "S.Coop.", "S.A. de C.V.", "Grupo", "Asociacion", "Fundacion", "Union", "Cooperativa",
+						"Corporacion", "Compania", "Negocios", "Empresa", "Empresas", "Comercio", "Sociedad",
+						"Fideicomiso", "Consorcio", "Alianza", "Entidad", "S.C.S.", "S.Coop.", "S.A. de C.V.", "Grupo",
+						"Asociacion", "City", "S.A.C", "Subsidiary", "Subsidiaries", "Subsidiada" // Spanish
+				).stream().map(String::toLowerCase).collect(Collectors.toList())); // Normalize stop words to lowercase
 	}
 
 	private static final long serialVersionUID = 1L;
