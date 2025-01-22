@@ -146,7 +146,7 @@ public class FullVLookUp {
 	}
 
 	/**
-	 * Executes queries and processes results.
+	 * Executes queries and processes results .
 	 */
 	public void performQueries() {
 		Dataframe queryData = new Dataframe();
@@ -164,17 +164,32 @@ public class FullVLookUp {
 				// int queryVerifyID = Integer.parseInt(query.get("Verify_ID"));
 				int queryIdx = Integer.parseInt(query.get("index"));
 				ArrayList<Map<String, String>> results = fuzzyDatabase.lookUpEntry(query);
-				Double matchingCoefficient = -1.0;
+				Double matchingCoefficientDamerau = -1.0;
+				Double matchingCoefficientJaccard = -1.0;
 				boolean sameID = false;
 				int topResultIdx = -1;
+				int secondTopIdx = -1;
 				if (results.size() > 0) {
-					Map<String, String> topEntry = results.get(0);
+					List<Map<String, String>> topEntries = new ArrayList<>(
+							results.subList(0, Math.min(5, results.size())));
+					topEntries = fuzzyDatabase.sortMatchesBySimilarityToQuery(query, topEntries);
+					Map<String, String> topEntry = topEntries.get(0);
+					// Map<String, String> topEntry = topEntries.get(0);
 					topResultIdx = Integer.parseInt(topEntry.get("index"));
-					matchingCoefficient = fuzzyDatabase.compareEntries(query, topEntry);
+
+					if (results.size() > 1) {
+
+						String secondTopIdxStr = topEntries.get(1).get("index");
+						secondTopIdx = Integer.parseInt(secondTopIdxStr);
+
+					}
+
+					matchingCoefficientDamerau = fuzzyDatabase.compareEntriesDamerau(query, topEntry);
+					matchingCoefficientJaccard = fuzzyDatabase.compareEntriesJaccard(query, topEntry);
 					sameID = fuzzyDatabase.compareByID(topEntry, query);
 				}
-				String[] idPair = new String[] { queryIdx + "", topResultIdx + "", matchingCoefficient + "",
-						sameID + "" };
+				String[] idPair = new String[] { queryIdx + "", topResultIdx + "", secondTopIdx + "",
+						matchingCoefficientDamerau + "", matchingCoefficientJaccard + "", sameID + "" };
 				resultPairs.add(idPair);
 
 				resultsList.add(query);
@@ -227,14 +242,17 @@ public class FullVLookUp {
 
 		try (PrintWriter writer = new PrintWriter(new FileWriter(outputFilePath))) {
 			// Writing headers
-			writer.println("query,match,coefficient,idMatch");
+			writer.println("query,match,secondMatch,coefficientDamerau,coefficientJaccard,idMatch");
 
 			for (String[] resultMap : resultPairs) {
 				int source = Integer.parseInt(resultMap[0]);
 				int target = Integer.parseInt(resultMap[1]);
-				Double coefficient = Double.parseDouble(resultMap[2]);
-				boolean matchingById = Boolean.parseBoolean(resultMap[3]);
-				writer.printf("%d,%d,%.3f,%d\n", source, target, coefficient, matchingById ? 1 : 0);
+				int secondTop = Integer.parseInt(resultMap[2]);
+				Double coefficientDamerau = Double.parseDouble(resultMap[3]);
+				Double coefficientJaccard = Double.parseDouble(resultMap[4]);
+				boolean matchingById = Boolean.parseBoolean(resultMap[5]);
+				writer.printf("%d,%d,%d,%.3f,%.3f,%d\n", source, target, secondTop, coefficientDamerau,
+						coefficientJaccard, matchingById ? 1 : 0);
 			}
 		} catch (IOException e) {
 			System.err.println("Failed to write results to CSV: " + e.getMessage());

@@ -4,8 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.io.Serializable;
 import java.io.ObjectOutputStream;
 import java.io.FileOutputStream;
@@ -234,10 +236,10 @@ public class FuzzyDatabase implements Serializable {
 	 * @return A Double representing the similarity score (1.0 - max similarity, 0.0
 	 *         - min similarity).
 	 */
-	public Double compareEntries(Map<String, String> target, Map<String, String> reference) {
+	public Double compareEntriesDamerau(Map<String, String> target, Map<String, String> reference) {
 		// Concatenate all values from each map into a single string
-		String targetValues = concatenateSortedValues(target);
-		String referenceValues = concatenateSortedValues(reference);
+		String targetValues = concatenateSortedValuesInput(target, false);
+		String referenceValues = concatenateSortedValuesInput(reference, true);
 
 		// Calculate Damerau-Levenshtein distance
 		Damerau damerau = new Damerau();
@@ -253,6 +255,37 @@ public class FuzzyDatabase implements Serializable {
 		// Normalize to get a similarity score
 		return 1.0 - (distance / maxLen);
 	}
+	
+	 /**
+     * Compares two map entries based on the Jaccard index, a statistical measure for comparing the similarity 
+     * and diversity of sample sets. This is used to calculate similarity in a manner that ignores the order
+     * of elements.
+     * 
+     * @param target    The target map of String pairs.
+     * @param reference The reference map of String pairs.
+     * @return A Double representing the similarity score (1.0 - max similarity, 0.0 - min similarity).
+     */
+    public Double compareEntriesJaccard(Map<String, String> target, Map<String, String> reference) {
+        // Collect all values from each map into sets
+        Set<String> targetValues = new HashSet<>(target.values());
+        Set<String> referenceValues = new HashSet<>(reference.values());
+
+        // Calculate the intersection and union of both sets
+        Set<String> intersection = new HashSet<>(targetValues);
+        intersection.retainAll(referenceValues);
+        Set<String> union = new HashSet<>(targetValues);
+        union.addAll(referenceValues);
+
+        // Calculate Jaccard index
+        if (union.isEmpty()) {
+            return 1.0; // Both are empty or identical
+        }
+
+        double jaccardIndex = (double) intersection.size() / union.size();
+
+        // Normalize to get a similarity score
+        return jaccardIndex;
+    }
 
 	/**
 	 * Concatenates sorted values of a map into a single string.
@@ -260,8 +293,18 @@ public class FuzzyDatabase implements Serializable {
 	 * @param map The map whose values are to be concatenated.
 	 * @return A sorted, space-separated string of the map's values.
 	 */
-	private String concatenateSortedValues(Map<String, String> map) {
-		ArrayList<String> values = new ArrayList<>(map.values());
+	private String concatenateSortedValuesInput(Map<String, String> map, boolean reference) {
+
+		ArrayList<String> values = new ArrayList<String>();
+
+		List<String> headers = this.backbone.getInputHeaders(reference);
+
+		for (String header : headers) {
+			if (map.containsKey(header)) {
+				values.add(map.get(header));
+			}
+		}
+
 		Collections.sort(values);
 		StringBuilder sb = new StringBuilder();
 		for (String value : values) {
@@ -270,20 +313,75 @@ public class FuzzyDatabase implements Serializable {
 		}
 		return sb.toString().trim();
 	}
-	
+
+	// Assuming the compareEntries method and other necessary parts are defined in
+	// this class
+
+	/**
+	 * Sorts reference maps based on their similarity to a given query map using the
+	 * Damerau-Levenshtein distance and returns a list of sorted reference maps.
+	 *
+	 * @param query      The query map of String pairs.
+	 * @param references A list of reference maps of String pairs.
+	 * @return A list of reference maps sorted by decreasing similarity to the
+	 *         query.
+	 */
+	public List<Map<String, String>> sortMatchesBySimilarityToQuery(Map<String, String> query,
+			List<Map<String, String>> references) {
+		// List to hold pairs of similarity scores and corresponding maps
+		List<Pair<Double, Map<String, String>>> scoredReferences = new ArrayList<>();
+
+		// Calculate similarity for each reference and store with reference
+		for (Map<String, String> reference : references) {
+			double similarity = compareEntriesJaccard(query, reference);
+			scoredReferences.add(new Pair<>(similarity, reference));
+		}
+
+		// Sort the list of pairs based on the similarity score in descending order
+		Collections.sort(scoredReferences, (pair1, pair2) -> Double.compare(pair2.getFirst(), pair1.getFirst()));
+
+		// Extract the sorted maps into a new list
+		List<Map<String, String>> sortedReferences = new ArrayList<>();
+		for (Pair<Double, Map<String, String>> pair : scoredReferences) {
+			sortedReferences.add(pair.getSecond());
+		}
+
+		return sortedReferences;
+	}
+
+	/**
+	 * Simple pair class for holding two related objects.
+	 */
+	private class Pair<T, U> {
+		private T first;
+		private U second;
+
+		public Pair(T first, U second) {
+			this.first = first;
+			this.second = second;
+		}
+
+		public T getFirst() {
+			return first;
+		}
+
+		public U getSecond() {
+			return second;
+		}
+	}
+
 	public boolean compareByID(Map<String, String> reference, Map<String, String> target) {
 
 		String referenceID = reference.get(this.backbone.getReferenceKeyHeader());
 		String targetID = target.get(this.backbone.getTargetKeyHeader());
-		
-		
-		if(referenceID != null && targetID != null) {
-			
+
+		if (referenceID != null && targetID != null) {
+
 			return referenceID.equalsIgnoreCase(targetID);
-		}	
-		
+		}
+
 		return false;
-		
+
 	}
 
 	/**
@@ -332,7 +430,7 @@ public class FuzzyDatabase implements Serializable {
 						groupTokens.addAll(tokenizedEntry);
 					}
 				} else {
-					List<String> groupTokens = new ArrayList<>(tokenizedEntry);
+					List<String> groupTokens = new ArrayList<String>(tokenizedEntry);
 					targetGroupBlock.setData(groupTokens);
 				}
 			}
