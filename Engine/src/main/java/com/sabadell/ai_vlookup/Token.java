@@ -29,7 +29,23 @@ public class Token implements Serializable {
 						"S.C.S.", "S.Coop.", "S.A. de C.V.", "Grupo", "Asociacion", "Fundacion", "Union", "Cooperativa",
 						"Corporacion", "Compania", "Negocios", "Empresa", "Empresas", "Comercio", "Sociedad",
 						"Fideicomiso", "Consorcio", "Alianza", "Entidad", "S.C.S.", "S.Coop.", "S.A. de C.V.", "Grupo",
-						"Asociacion", "City", "S.A.C", "Subsidiary", "Subsidiaries", "Subsidiada" // Spanish
+						"Asociacion", "City", "S.A.C", "Subsidiary", "Subsidiaries", "Subsidiada", "Incorporated",
+						"Corporation", "Company", "Limited", "LLC", "Inc.", "Corp.", "Co.", "Ltd.", "LLP", "LP", "L.P.",
+						"L.L.P.", "P.C.", "PLLC", "Corp", "Inc", "Partnership", "Group", "Association", "Holdings",
+						"Enterprise", "Enterprises", "Firm", "Trust", "Foundation", "Institution", "Organization",
+						"Estate", "Union", "Consortium", "Joint Venture", "JV", "Venture", "LLC.",
+
+						// Spanish Stop Words for Business Entities
+						"Sociedad Anonima", "Compania Limitada", "Sociedad de Responsabilidad Limitada",
+						"Sociedad Limitada", "S.L.", "S.A.", "SA", "S.L.N.E.", "S.R.L.", "S.A.S.", "S. de R.L.", "S.C.",
+						"S.C.S.", "S.Coop.", "S.A. de C.V.", "Grupo", "Asociacion", "Fundacion", "Union", "Cooperativa",
+						"Corporacion", "Compania", "Negocios", "Empresa", "Empresas", "Comercio", "Sociedad",
+						"Fideicomiso", "Consorcio", "Alianza", "Entidad", "S.C.S.", "S.Coop.", "S.A. de C.V.", "Grupo",
+						"Asociacion", "City", "S.A.C", "Subsidiary", "Subsidiaries", "Subsidiada", // Spanish
+
+						// Additional Stop Words
+						"gmbh", "société", "mbh", "pty ltd", "s.p.a.", "oy", "ab", "as", "nv", "plc", "ltda", "gie",
+						"se", "ooo", "zrt.", "kft.", "ag", "kg", "sarl", "v.o.f.", "eeig" // Spanish
 				).stream().map(String::toLowerCase).collect(Collectors.toList())); // Normalize stop words to lowercase
 	}
 
