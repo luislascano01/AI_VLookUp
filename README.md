@@ -22,3 +22,9 @@ Continuing our example from the use case. Let's say we want to find the Customer
   <img src="./Documentation/Images/BidirectionalMapping.png" alt="Description of image" width="70%">
 
 <div style="text-align: center;">
+
+## Copyright Notice
+
+© [2025] [Luis Lascano]. All rights reserved.
+
+No permission is granted to use, copy, modify, or distribute this software and its documentation for any purpose without the express written permission of the copyright holder.
