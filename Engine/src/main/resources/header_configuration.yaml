@@ -39,4 +39,4 @@ FuzzyDatabaseConfig:
     MessyTable: "/Users/luislascano01/Documents/Sabadell/Covenants_Matching/AI_VLookUp/Sample_Dataset/Secondary_Data.xlsx"
   OperatingDir: "/Users/luislascano01/Documents/Sabadell/Covenants_Matching/AI_VLookUp/OperatingDir"
   RegexPreprocessing:
-    Customer_ID: "(\\d{2,6})"
+    Customer_ID: "((?<![/\\d])\\d+(?![/\\d]))"

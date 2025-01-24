@@ -21,7 +21,7 @@ public class Token implements Serializable {
 						"Ltd.", "LLP", "LP", "L.P.", "L.L.P.", "P.C.", "PLLC", "Corp", "Inc", "Partnership", "Group",
 						"Association", "Holdings", "Enterprise", "Enterprises", "Firm", "Trust", "Foundation",
 						"Institution", "Organization", "Estate", "Union", "Consortium", "Joint Venture", "JV",
-						"Venture", "LLC.",
+						"Venture", "LLC.", "Consolidate", "Consolidada",
 
 						// Spanish Stop Words for Business Entities
 						"Sociedad Anonima", "Compania Limitada", "Sociedad de Responsabilidad Limitada",
