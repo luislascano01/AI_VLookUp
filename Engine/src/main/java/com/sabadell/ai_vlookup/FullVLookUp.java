@@ -50,7 +50,7 @@ public class FullVLookUp {
 		}
 
 		// Save BackboneConfiguration to a temporary file
-		this.backboneYamlConfiguration = saveBackboneConfigurationToFile(backboneConfig);
+		this.backboneYamlConfiguration = BidirectionalGroupMap.saveBackboneConfigurationToFile(backboneConfig);
 
 		// Extract data paths
 		Map<String, String> dataToConsume = (Map<String, String>) fuzzyDatabaseConfig.get("DataToConsume");
@@ -90,7 +90,7 @@ public class FullVLookUp {
 	 * @param yamlConfigurationPath Path to the YAML configuration file.
 	 * @return A Map representing the parsed YAML content.
 	 */
-	private static Map<String, Object> loadYamlConfiguration(String yamlConfigurationPath) {
+	public static Map<String, Object> loadYamlConfiguration(String yamlConfigurationPath) {
 		try {
 			File yamlFile = new File(yamlConfigurationPath);
 			if (!yamlFile.exists() || !yamlFile.isFile()) {
@@ -105,28 +105,6 @@ public class FullVLookUp {
 		}
 	}
 
-	/**
-	 * Saves the backbone configuration section to a temporary YAML file.
-	 *
-	 * @param backboneConfig The backbone configuration to save.
-	 * @return A File object pointing to the saved YAML file.
-	 */
-	private File saveBackboneConfigurationToFile(Map<String, Object> backboneConfig) {
-		try {
-			File tempFile = File.createTempFile("backbone_configuration", ".yaml");
-			tempFile.deleteOnExit(); // Automatically delete the file on JVM exit
-
-			Yaml yaml = new Yaml();
-			try (FileWriter writer = new FileWriter(tempFile)) {
-				yaml.dump(backboneConfig, writer);
-			}
-
-			return tempFile;
-		} catch (IOException e) {
-			System.err.println("Failed to save backbone configuration to file: " + e.getMessage());
-			throw new RuntimeException("Error saving backbone configuration to temporary file.", e);
-		}
-	}
 
 	/**
 	 * Initializes the reference data and loads it into the FuzzyDatabase.

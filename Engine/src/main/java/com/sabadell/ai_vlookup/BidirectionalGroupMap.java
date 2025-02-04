@@ -440,6 +440,30 @@ public class BidirectionalGroupMap implements Serializable {
 
 		return sb.toString();
 	}
+	
+	
+	/**
+	 * Saves the backbone configuration section to a temporary YAML file.
+	 *
+	 * @param backboneConfig The backbone configuration to save.
+	 * @return A File object pointing to the saved YAML file.
+	 */
+	public static File saveBackboneConfigurationToFile(Map<String, Object> backboneConfig) {
+		try {
+			File tempFile = File.createTempFile("backbone_configuration", ".yaml");
+			tempFile.deleteOnExit(); // Automatically delete the file on JVM exit
+
+			Yaml yaml = new Yaml();
+			try (FileWriter writer = new FileWriter(tempFile)) {
+				yaml.dump(backboneConfig, writer);
+			}
+
+			return tempFile;
+		} catch (IOException e) {
+			System.err.println("Failed to save backbone configuration to file: " + e.getMessage());
+			throw new RuntimeException("Error saving backbone configuration to temporary file.", e);
+		}
+	}
 
 	/**
 	 * Quick test main
@@ -450,18 +474,23 @@ public class BidirectionalGroupMap implements Serializable {
 			return;
 		}
 
-		// 1) Retrieve the YAML file path from the command-line arguments
-		String yamlFilePath = args[0];
-		File yamlFile = new File(yamlFilePath);
+		
+		Map<String, Object> configuration = FullVLookUp.loadYamlConfiguration(args[0]);
+		
+		Map<String, Object> fuzzyDatabaseConfig = (Map<String, Object>) configuration.get("FuzzyDatabaseConfig");
+		
+		Map<String, Object> backboneConfig = (Map<String, Object>) fuzzyDatabaseConfig.get("BackboneConfiguration");
+		
+		File backboneYamlConfiguration = saveBackboneConfigurationToFile(backboneConfig);
+		
+		
 
-		// 2) Validate the YAML file path
-		if (!yamlFile.exists() || !yamlFile.isFile()) {
-			System.err.println("Invalid YAML file path provided: " + yamlFilePath);
-			return;
+		if (fuzzyDatabaseConfig == null) {
+			throw new IllegalArgumentException("Missing 'FuzzyDatabaseConfig' in YAML configuration.");
 		}
 
 		// 3) Instantiate BidirectionalGroupMap using the provided YAML file
-		BidirectionalGroupMap map = new BidirectionalGroupMap(yamlFile);
+		BidirectionalGroupMap map = new BidirectionalGroupMap(backboneYamlConfiguration);
 
 		// 4) Generate the LaTeX graph code
 		String latexCode = map.toLatexGraph();
