@@ -171,8 +171,8 @@ public class FullVLookUp {
 				int secondTopIdx = -1;
 				if (results.size() > 0) {
 					List<Map<String, String>> topEntries = new ArrayList<>(
-							results.subList(0, Math.min(5, results.size())));
-					topEntries = fuzzyDatabase.sortMatchesBySimilarityToQuery(query, topEntries);
+							results.subList(0, Math.min(6, results.size())));
+					//topEntries = fuzzyDatabase.sortMatchesBySimilarityToQuery(query, topEntries);
 					Map<String, String> topEntry = topEntries.get(0);
 					// Map<String, String> topEntry = topEntries.get(0);
 					topResultIdx = Integer.parseInt(topEntry.get("index"));

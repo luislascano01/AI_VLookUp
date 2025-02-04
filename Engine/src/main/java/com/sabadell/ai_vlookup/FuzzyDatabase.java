@@ -255,37 +255,38 @@ public class FuzzyDatabase implements Serializable {
 		// Normalize to get a similarity score
 		return 1.0 - (distance / maxLen);
 	}
-	
-	 /**
-     * Compares two map entries based on the Jaccard index, a statistical measure for comparing the similarity 
-     * and diversity of sample sets. This is used to calculate similarity in a manner that ignores the order
-     * of elements.
-     * 
-     * @param target    The target map of String pairs.
-     * @param reference The reference map of String pairs.
-     * @return A Double representing the similarity score (1.0 - max similarity, 0.0 - min similarity).
-     */
-    public Double compareEntriesJaccard(Map<String, String> target, Map<String, String> reference) {
-        // Collect all values from each map into sets
-        Set<String> targetValues = new HashSet<>(target.values());
-        Set<String> referenceValues = new HashSet<>(reference.values());
 
-        // Calculate the intersection and union of both sets
-        Set<String> intersection = new HashSet<>(targetValues);
-        intersection.retainAll(referenceValues);
-        Set<String> union = new HashSet<>(targetValues);
-        union.addAll(referenceValues);
+	/**
+	 * Compares two map entries based on the Jaccard index, a statistical measure
+	 * for comparing the similarity and diversity of sample sets. This is used to
+	 * calculate similarity in a manner that ignores the order of elements.
+	 * 
+	 * @param target    The target map of String pairs.
+	 * @param reference The reference map of String pairs.
+	 * @return A Double representing the similarity score (1.0 - max similarity, 0.0
+	 *         - min similarity).
+	 */
+	public Double compareEntriesJaccard(Map<String, String> target, Map<String, String> reference) {
+		// Collect all values from each map into sets
+		Set<String> targetValues = new HashSet<>(target.values());
+		Set<String> referenceValues = new HashSet<>(reference.values());
 
-        // Calculate Jaccard index
-        if (union.isEmpty()) {
-            return 1.0; // Both are empty or identical
-        }
+		// Calculate the intersection and union of both sets
+		Set<String> intersection = new HashSet<>(targetValues);
+		intersection.retainAll(referenceValues);
+		Set<String> union = new HashSet<>(targetValues);
+		union.addAll(referenceValues);
 
-        double jaccardIndex = (double) intersection.size() / union.size();
+		// Calculate Jaccard index
+		if (union.isEmpty()) {
+			return 1.0; // Both are empty or identical
+		}
 
-        // Normalize to get a similarity score
-        return jaccardIndex;
-    }
+		double jaccardIndex = (double) intersection.size() / union.size();
+
+		// Normalize to get a similarity score
+		return jaccardIndex;
+	}
 
 	/**
 	 * Concatenates sorted values of a map into a single string.
@@ -333,7 +334,8 @@ public class FuzzyDatabase implements Serializable {
 
 		// Calculate similarity for each reference and store with reference
 		for (Map<String, String> reference : references) {
-			double similarity = compareEntriesJaccard(query, reference);
+			double similarity = (compareEntriesJaccard(query, reference) + compareEntriesDamerau(query, reference)) / 2;
+
 			scoredReferences.add(new Pair<>(similarity, reference));
 		}
 
@@ -456,7 +458,9 @@ public class FuzzyDatabase implements Serializable {
 						if (currBucket != null) {
 							for (BucketEntry entry : currBucket.getEntries()) {
 								Integer idx = entry.getEntryIdx();
-								Double weight = entry.getWeight();
+								Integer x = token.length();
+								Double increasingFactor = Math.exp(x/5);
+								Double weight = (entry.getWeight() / currBucket.getSize()) * increasingFactor;
 								queryAnalyzer.increaseWeight(idx, weight);
 							}
 						}

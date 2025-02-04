@@ -16,37 +16,29 @@ public class Token implements Serializable {
 	public static final HashMap<String, List<String>> stopWords = new HashMap<>();
 
 	static {
-		stopWords.put("Common",
-				Arrays.asList("Incorporated", "Corporation", "Company", "Limited", "LLC", "Inc.", "Corp.", "Co.",
-						"Ltd.", "LLP", "LP", "L.P.", "L.L.P.", "P.C.", "PLLC", "Corp", "Inc", "Partnership", "Group",
-						"Association", "Holdings", "Enterprise", "Enterprises", "Firm", "Trust", "Foundation",
-						"Institution", "Organization", "Estate", "Union", "Consortium", "Joint Venture", "JV",
-						"Venture", "LLC.", "Consolidate", "Consolidada",
+		stopWords.put("Common", Arrays.asList("Incorporated", "Corporation", "Company", "Limited", "LLC", "Inc.",
+				"Corp.", "Co.", "Ltd.", "LLP", "LP", "L.P.", "L.L.P.", "P.C.", "PLLC", "Corp", "Inc", "Partnership",
+				"Group", "Association", "Holdings", "Enterprise", "Enterprises", "Firm", "Trust", "Foundation",
+				"Institution", "Organization", "Estate", "Union", "Consortium", "Joint Venture", "JV", "Venture",
+				"LLC.",
 
-						// Spanish Stop Words for Business Entities
-						"Sociedad Anonima", "Compania Limitada", "Sociedad de Responsabilidad Limitada",
-						"Sociedad Limitada", "S.L.", "S.A.", "SA", "S.L.N.E.", "S.R.L.", "S.A.S.", "S. de R.L.", "S.C.",
-						"S.C.S.", "S.Coop.", "S.A. de C.V.", "Grupo", "Asociacion", "Fundacion", "Union", "Cooperativa",
-						"Corporacion", "Compania", "Negocios", "Empresa", "Empresas", "Comercio", "Sociedad",
-						"Fideicomiso", "Consorcio", "Alianza", "Entidad", "S.C.S.", "S.Coop.", "S.A. de C.V.", "Grupo",
-						"Asociacion", "City", "S.A.C", "Subsidiary", "Subsidiaries", "Subsidiada", "Incorporated",
-						"Corporation", "Company", "Limited", "LLC", "Inc.", "Corp.", "Co.", "Ltd.", "LLP", "LP", "L.P.",
-						"L.L.P.", "P.C.", "PLLC", "Corp", "Inc", "Partnership", "Group", "Association", "Holdings",
-						"Enterprise", "Enterprises", "Firm", "Trust", "Foundation", "Institution", "Organization",
-						"Estate", "Union", "Consortium", "Joint Venture", "JV", "Venture", "LLC.",
+				// Spanish Stop Words for Business Entities
+				"Sociedad Anonima", "Compania Limitada", "Sociedad de Responsabilidad Limitada", "Sociedad Limitada",
+				"S.L.", "S.A.", "SA", "S.L.N.E.", "S.R.L.", "S.A.S.", "S. de R.L.", "S.C.", "S.C.S.", "S.Coop.",
+				"S.A. de C.V.", "Grupo", "Asociacion", "Fundacion", "Union", "Cooperativa", "Corporacion", "Compania",
+				"Negocios", "Empresa", "Empresas", "Comercio", "Sociedad", "Fideicomiso", "Consorcio", "Alianza",
+				"Entidad", "S.C.S.", "S.Coop.", "S.A. de C.V.", "Grupo", "Asociacion", "City", // Spanish
 
-						// Spanish Stop Words for Business Entities
-						"Sociedad Anonima", "Compania Limitada", "Sociedad de Responsabilidad Limitada",
-						"Sociedad Limitada", "S.L.", "S.A.", "SA", "S.L.N.E.", "S.R.L.", "S.A.S.", "S. de R.L.", "S.C.",
-						"S.C.S.", "S.Coop.", "S.A. de C.V.", "Grupo", "Asociacion", "Fundacion", "Union", "Cooperativa",
-						"Corporacion", "Compania", "Negocios", "Empresa", "Empresas", "Comercio", "Sociedad",
-						"Fideicomiso", "Consorcio", "Alianza", "Entidad", "S.C.S.", "S.Coop.", "S.A. de C.V.", "Grupo",
-						"Asociacion", "City", "S.A.C", "Subsidiary", "Subsidiaries", "Subsidiada", // Spanish
+				// Custom stop words above the 150 common threshold
 
-						// Additional Stop Words
-						"gmbh", "société", "mbh", "pty ltd", "s.p.a.", "oy", "ab", "as", "nv", "plc", "ltda", "gie",
-						"se", "ooo", "zrt.", "kft.", "ag", "kg", "sarl", "v.o.f.", "eeig" // Spanish
-				).stream().map(String::toLowerCase).collect(Collectors.toList())); // Normalize stop words to lowercase
+				"or", "a", "de", "s", "inc", "maria", "llc", "c", "jose", "corp", "ltd", "l", "v", "luis", "limited",
+				"juan", "investments", "antonio", "garcia", "gonzalez", "del", "rodriguez", "carlos", "international",
+				"sa", "corporation", "the", "francisco", "manuel", "fernandez", "seafood", "usa", "lopez", "perez",
+				"group", "trust", "y", "r", "holdings", "banco", "trading", "la", "investment", "martinez", "jorge",
+				"eduardo", "sanchez", "and", "miguel", "alberto", "company", "inversiones", "jesus", "gomez",
+				"fernando", "enrique", "m", "carmen", "javier"
+
+		).stream().map(String::toLowerCase).collect(Collectors.toList())); // Normalize stop words to lowercase
 	}
 
 	private static final long serialVersionUID = 1L;
@@ -62,22 +54,41 @@ public class Token implements Serializable {
 			return new ArrayList<>(); // Return empty list for null or empty input
 		}
 
+		List<String> tokens = new ArrayList<String>();
+
+		input = input.replaceAll("^[\\p{Punct}\\s]+|[\\p{Punct}\\s]+$", "");
+
+		if (input.contentEquals("")) {
+			return tokens;
+		}
+		input = input.trim().toLowerCase();
+		if (input.length() > 10) {
+			for(int i = 0; i < 300; i++) {
+				tokens.add(input);
+			}
+		} else if(input.length() > 7) {
+			for(int i = 0; i < 70; i++) {
+				tokens.add(input);
+			}
+		}
+
 		// Step 1: Preprocess input to remove unnecessary punctuation
 		input = preprocess(input);
 
 		List<String> words = new ArrayList<>(Arrays.asList(input.split("\\s+")));
 		words.removeAll(stopWords.get("Common")); // Remove common stop words
 
-		// Step 2: Initialize Stanford NLP pipeline
-		// Reconstruct input without stop words
 		input = String.join(" ", words);
 
 		// Step 4: Extract tokens and generate cuts
-		List<String> tokens = new ArrayList<String>();
 
-		for (String token : input.split(" ")) {
+		for (String token : words) {
 			// Filter out invalid tokens
 			if (isValidToken(token)) {
+				tokens.add(token);
+				tokens.add(token);
+				tokens.add(token);
+				tokens.add(token);
 				if (isNumericId(token)) {
 					// tokens.add(token);
 					tokens.add(token);
@@ -86,12 +97,12 @@ public class Token implements Serializable {
 				} else {
 					// tokens.addAll(generateCuts(token.toLowerCase(), 3));
 					tokens.addAll(generateCuts(token, 4));
-					// tokens.addAll(generateCuts(token, 5));
+					tokens.addAll(generateCuts(token, 5));
 					tokens.addAll(generateCuts(token, 8));
 					tokens.addAll(generateCuts(token, 10));
 					tokens.addAll(generateCuts(token, 13));
-					tokens.addAll(generateCuts(token, 13));
-					// tokens.addAll(generateCuts(token, 15));
+					tokens.addAll(generateCuts(token, 15));
+					tokens.addAll(generateCuts(token, 17));
 					tokens.addAll(generateCuts(token, 17));
 				}
 			}

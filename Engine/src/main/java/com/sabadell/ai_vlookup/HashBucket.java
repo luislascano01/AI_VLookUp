@@ -44,5 +44,9 @@ public class HashBucket implements Serializable {
 		}
 
 	}
+	
+	public int getSize() {
+		return this.entries.size();
+	}
 
 }
