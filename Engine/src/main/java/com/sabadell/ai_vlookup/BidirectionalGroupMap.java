@@ -484,11 +484,6 @@ public class BidirectionalGroupMap implements Serializable {
 		File backboneYamlConfiguration = saveBackboneConfigurationToFile(backboneConfig);
 		
 		
-
-		if (fuzzyDatabaseConfig == null) {
-			throw new IllegalArgumentException("Missing 'FuzzyDatabaseConfig' in YAML configuration.");
-		}
-
 		// 3) Instantiate BidirectionalGroupMap using the provided YAML file
 		BidirectionalGroupMap map = new BidirectionalGroupMap(backboneYamlConfiguration);
 

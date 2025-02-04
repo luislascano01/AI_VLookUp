@@ -19,7 +19,7 @@
 		
 		public InteractiveLookUp(String projectBasePath) {
 			
-			this.projectBasePath = projectBasePath;
+			InteractiveLookUp.projectBasePath = projectBasePath;
 			
 		}
 		
