@@ -44,7 +44,8 @@ public class Token implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Tokenizes the input text by splitting words into overlapping segments (cuts).
+	 * Tokenizes the input text by splitting words into overlapping segments (cuts)
+	 * and also extracts word sequences using a sliding window approach.
 	 *
 	 * @param input The text to be tokenized.
 	 * @return A list of tokens and their segments.
@@ -54,21 +55,22 @@ public class Token implements Serializable {
 			return new ArrayList<>(); // Return empty list for null or empty input
 		}
 
-		List<String> tokens = new ArrayList<String>();
+		List<String> tokens = new ArrayList<>();
 
 		input = input.replaceAll("^[\\p{Punct}\\s]+|[\\p{Punct}\\s]+$", "");
+		input = input.toLowerCase();
 
 		if (input.contentEquals("")) {
 			return tokens;
 		}
 		input = input.trim().toLowerCase();
 		if (input.length() > 10) {
-			for (int i = 0; i < 200; i++) {
-				tokens.add(input);
+			for (int i = 0; i < 400; i++) {
+				tokens.add("$" + input + "$");
 			}
 		} else if (input.length() > 7) {
-			for (int i = 0; i < 70; i++) {
-				tokens.add(input);
+			for (int i = 0; i < 100; i++) {
+				tokens.add("$" + input + "$");
 			}
 		}
 
@@ -83,26 +85,22 @@ public class Token implements Serializable {
 		// Step 4: Extract tokens and generate cuts
 		int top = 17;
 		for (String token : words) {
-			if(token.length() < 2) {
+			if (token.length() < 2) {
 				continue;
 			}
 			// Filter out invalid tokens
 			if (isValidToken(token)) {
-				tokens.add(token);
-				tokens.add(token);
+				tokens.add("$" + token + "$");
+				tokens.add("$#" + token + "$#");
+
 				if (isNumericId(token)) {
-					// tokens.add(token);
 					tokens.add(token);
 					tokens.add(token);
 					tokens.add(token);
-					// tokens.add(token);// Keep numeric IDs intact
 				} else {
-					// tokens.addAll(generateCuts(token.toLowerCase(), 3));
 					tokens.addAll(generateCuts(token, 4));
 					tokens.addAll(generateCuts(token, 5));
-					/*for (int i = 0; i < top; i++) {
-						tokens.addAll(generateCuts(token, i));
-					}*/
+					tokens.addAll(generateCuts(token, 7));
 					tokens.addAll(generateCuts(token, 8));
 					tokens.addAll(generateCuts(token, 10));
 					tokens.addAll(generateCuts(token, 10));
@@ -111,12 +109,34 @@ public class Token implements Serializable {
 					tokens.addAll(generateCuts(token, 15));
 					tokens.addAll(generateCuts(token, 17));
 					tokens.addAll(generateCuts(token, 17));
-
 				}
 			}
 		}
 
+		// 🔹 ADD SLIDING WINDOW WORD SEQUENCES (NEW ADDITION)
+		tokens.addAll(generateWordWindows(words, 2)); // Bi-grams (2-word phrases)
+		tokens.addAll(generateWordWindows(words, 3)); // Tri-grams (3-word phrases)
+		tokens.addAll(generateWordWindows(words, 4)); // Four-word phrases
+
 		return tokens;
+	}
+
+	/**
+	 * Generates word sequences using a sliding window approach.
+	 *
+	 * @param words      The list of words from the input string.
+	 * @param windowSize The number of words in each window.
+	 * @return A list of tokenized phrases.
+	 */
+	private static List<String> generateWordWindows(List<String> words, int windowSize) {
+		List<String> wordSequences = new ArrayList<>();
+		if (words.size() < windowSize)
+			return wordSequences; // Skip if not enough words
+
+		for (int i = 0; i <= words.size() - windowSize; i++) {
+			wordSequences.add(String.join(" ", words.subList(i, i + windowSize)));
+		}
+		return wordSequences;
 	}
 
 	/**
@@ -160,7 +180,7 @@ public class Token implements Serializable {
 	 */
 	private static List<String> generateCuts(String word, int cutSize) {
 		List<String> cuts = new ArrayList<String>();
-		
+
 		if (cutSize > word.length()) {
 			return cuts;
 		}
@@ -187,4 +207,5 @@ public class Token implements Serializable {
 		System.out.println("Address Tokens: " + addressTokens);
 		System.out.println("ID Tokens: " + idTokens);
 	}
+	/// Numeric ID Regex: Customer_ID: "((?<![/\\d])\\d+(?![/\\d]))"
 }
