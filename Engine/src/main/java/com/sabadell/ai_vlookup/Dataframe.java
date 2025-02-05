@@ -29,7 +29,7 @@ public class Dataframe implements Iterable<Map<String, String>>, Serializable {
 	 * Internally holds one Map per row: rowData = { "index": "0", "Column A": "some
 	 * value", ... }
 	 */
-	private final List<Map<String, String>> data;
+	public final List<Map<String, String>> data;
 
 	/**
 	 * List of column labels, in the order they appear in the sheet.
