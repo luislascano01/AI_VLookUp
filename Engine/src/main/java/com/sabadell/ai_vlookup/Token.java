@@ -91,10 +91,9 @@ public class Token implements Serializable {
 			// Filter out invalid tokens
 			if (isValidToken(token)) {
 				tokens.add("$" + token + "$");
-				tokens.add("$#" + token + "$#");
-
-				if (isNumericId(token)) {
-					tokens.add(token);
+				tokens.add("$2" + token + "$2");				
+				if (isNumericId(token)) {					
+					tokens.add("$#" + token + "$#");
 					tokens.add(token);
 					tokens.add(token);
 				} else {

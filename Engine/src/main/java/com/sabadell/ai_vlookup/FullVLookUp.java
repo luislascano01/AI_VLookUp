@@ -24,6 +24,8 @@ public class FullVLookUp {
 
 	private File backboneYamlConfiguration;
 
+	private Double topWeightValue = Double.MIN_VALUE;
+
 	/**
 	 * Constructs a FullVLookUp instance by loading the YAML configuration from the
 	 * given path.
@@ -166,21 +168,32 @@ public class FullVLookUp {
 				ArrayList<Map<String, String>> results = fuzzyDatabase.lookUpEntry(query);
 				Double matchingCoefficientDamerau = -1.0;
 				Double matchingCoefficientJaccard = -1.0;
+				String topResultWeight = "-1";
+				String secondTopWeight = "-1";
 				boolean sameID = false;
 				int topResultIdx = -1;
 				int secondTopIdx = -1;
 				if (results.size() > 0) {
 					List<Map<String, String>> topEntries = new ArrayList<>(
 							results.subList(0, Math.min(6, results.size())));
-					//topEntries = fuzzyDatabase.sortMatchesBySimilarityToQuery(query, topEntries);
+					// topEntries = fuzzyDatabase.sortMatchesBySimilarityToQuery(query, topEntries);
 					Map<String, String> topEntry = topEntries.get(0);
 					// Map<String, String> topEntry = topEntries.get(0);
 					topResultIdx = Integer.parseInt(topEntry.get("index"));
+
+					topResultWeight = topEntry.get("weight");
+
+					Double currWeight = Double.parseDouble(secondTopWeight);
+
+					this.topWeightValue = Math.max(this.topWeightValue, currWeight);
 
 					if (results.size() > 1) {
 
 						String secondTopIdxStr = topEntries.get(1).get("index");
 						secondTopIdx = Integer.parseInt(secondTopIdxStr);
+						secondTopWeight = topEntries.get(1).get("weight");
+						Double secondTW = Double.parseDouble(secondTopWeight);
+						this.topWeightValue = Math.max(this.topWeightValue, secondTW);
 
 					}
 
@@ -188,8 +201,9 @@ public class FullVLookUp {
 					matchingCoefficientJaccard = fuzzyDatabase.compareEntriesJaccard(query, topEntry);
 					sameID = fuzzyDatabase.compareByID(topEntry, query);
 				}
-				String[] idPair = new String[] { queryIdx + "", topResultIdx + "", secondTopIdx + "",
-						matchingCoefficientDamerau + "", matchingCoefficientJaccard + "", sameID + "" };
+				String[] idPair = new String[] { queryIdx + "", topResultIdx + "", topResultWeight + "",
+						secondTopIdx + "", secondTopWeight + "", matchingCoefficientDamerau + "",
+						matchingCoefficientJaccard + "", sameID + "" };
 				resultPairs.add(idPair);
 
 				resultsList.add(query);
@@ -198,7 +212,57 @@ public class FullVLookUp {
 			// Optionally: output results to CSV or another format
 			String simpleStats = getStats(queryData, regexCounts);
 			System.out.println(simpleStats);
+
+			// Code for re arranging ranking based on overlapping matches. We use a re
+			// arranger class
+			// that leverages a HashMap to find collisions between topResultIdx; then
+			// between those collisions
+			// the algorithm should perform a Lenvenshtein-Swap analysis between the
+			// corresponding idx in QueryData
+			// and whichever colliding entry has the lowest edit distance gets assigned the
+			// match and gets
+			// to keep the idx as topResultIdx; for the loosing colliding entry we proceed
+			// to move up the secondTopIdx
+			// into the topResultIdx, leaving secondTopIdx as -1.
+			// Every time a secondMatchMove up; it should be added again to the HashMap
+			// backed collision checking
+			// data structure as part of algorithm completeness.
+			// Now, this case described is only for the top two matches; however, you should
+			// follow generabilization
+			// principles, therefore structure the algorithm in such way that no matter how
+			// many ranks there are (in our case two)
+			// the algorithm can still execute through all ranks and find the ultimate
+			// arrangement in such way that there are no avoidable collisions
+			// Also, the top idx should never be -1 if it had a number previously; meaning
+			// that if there are two colliding idxs and there is nothing in the
+			// ranks to move up; then they'll stay colliding.
+			
+			
+			//// Part Two.
+
+			// The description above is already working; however, we want to improve the
+			
+			
+			// algorithm, I need to modify the method rearrageCollisions. The current
+			// problem that I'm having
+			// is that if a entry has a secondMatcht that does not necessarily meean that
+			// second match
+			// is worth moving up; therefore I want to introduce a method hyperparameter
+			// (diffPercent) threshold.
+
+			// How this will work is that the Levenshtein distance of the new match going up
+			// can only
+			// be diffPercent (in percentage relative to distance of main match) higher than
+			// the current match. Otherwise the current match stays and the become verified colliding
+			// matches.
+			// CollisionRearranger.rearrangeCollisions(queryData, resultPairs, diffPercent);
+
+			// After you've built resultPairs:
+			double diffPercent = 0.20; // 20% threshold
+			CollisionRearranger.rearrangeCollisions(queryData, resultPairs, diffPercent);
+
 			outputResultsMap(resultPairs);
+
 		} catch (IOException e) {
 			System.err.println("Failed to load query CSV: " + e.getMessage());
 			e.printStackTrace();
@@ -233,8 +297,8 @@ public class FullVLookUp {
 		return statText.toString();
 	}
 
-	private void outputResultsMap(List<String[]> resultPairs) {
-		int processedCount = resultPairs.size();
+	private void outputResultsMap(List<String[]> resultTuples) {
+		int processedCount = resultTuples.size();
 
 		System.out.format("Total number of 	entries processed: %d", processedCount);
 
@@ -243,14 +307,35 @@ public class FullVLookUp {
 		try (PrintWriter writer = new PrintWriter(new FileWriter(outputFilePath))) {
 			// Writing headers
 			writer.println("query,match,secondMatch,coefficientDamerau,coefficientJaccard,idMatch");
-
-			for (String[] resultMap : resultPairs) {
+			/*
+			 * Double sumExpWeight = 1e-10; for (String[] resultMap : resultTuples) { Double
+			 * targetW = Double.parseDouble(resultMap[2]); if (targetW > 0) sumExpWeight +=
+			 * Math.exp(targetW - this.topWeightValue); Double secondW =
+			 * Double.parseDouble(resultMap[4]); if (secondW > 0) sumExpWeight +=
+			 * Math.exp(secondW - this.topWeightValue);
+			 * 
+			 * }
+			 */
+			for (String[] resultMap : resultTuples) {
 				int source = Integer.parseInt(resultMap[0]);
 				int target = Integer.parseInt(resultMap[1]);
-				int secondTop = Integer.parseInt(resultMap[2]);
-				Double coefficientDamerau = Double.parseDouble(resultMap[3]);
-				Double coefficientJaccard = Double.parseDouble(resultMap[4]);
-				boolean matchingById = Boolean.parseBoolean(resultMap[5]);
+				// Double targetW = Double.parseDouble(resultMap[2]);
+				int secondTop = Integer.parseInt(resultMap[3]);
+
+				/*
+				 * Double targetWShift = 0.0; Double normalizedTW = -1.0; if (targetW > 0) {
+				 * targetWShift = targetW - this.topWeightValue; normalizedTW =
+				 * Math.exp(targetWShift) / sumExpWeight; }
+				 * 
+				 * 
+				 * 
+				 * Double secondWShift = 0.0; Double normalizedSW = -1.0; if (secondW > 0) {
+				 * secondWShift = secondW - this.topWeightValue; normalizedSW =
+				 * Math.exp(secondWShift) / sumExpWeight; }
+				 */
+				Double coefficientDamerau = Double.parseDouble(resultMap[5]);
+				Double coefficientJaccard = Double.parseDouble(resultMap[6]);
+				boolean matchingById = Boolean.parseBoolean(resultMap[7]);
 				writer.printf("%d,%d,%d,%.3f,%.3f,%d\n", source, target, secondTop, coefficientDamerau,
 						coefficientJaccard, matchingById ? 1 : 0);
 			}

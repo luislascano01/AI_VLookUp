@@ -27,7 +27,8 @@ public class FuzzyDatabase implements Serializable {
 
 	private BidirectionalGroupMap backbone; // Backbone configuration for managing headers and groups
 	private String name; // Name of the database
-	private Dataframe sourceDataFrame; // The source data for the database
+	private Dataframe sourceDataFrame;
+	private Double maxWeight = Double.MIN_VALUE;
 
 	/**
 	 * Constructs a new FuzzyDatabase instance with the given name and YAML
@@ -461,9 +462,13 @@ public class FuzzyDatabase implements Serializable {
 			List<Integer> exactKeyMatchesIdxs = this.lookUpEntryByID(keyToLookUp, rowData);
 
 			List<Map<String, String>> exactKeyMatches = this.sourceDataFrame.get(exactKeyMatchesIdxs);
-
+			
+			for (Map<String, String> entry : exactKeyMatches) {
+			    entry.put("weight", String.valueOf(Double.MAX_VALUE));
+			}
+			
 			if (exactKeyMatches.size() > 0) {
-				matchingEntries.addAll(exactKeyMatches);
+				matchingEntries.addAll(exactKeyMatches);			
 				return matchingEntries;
 			}
 		}
@@ -506,6 +511,7 @@ public class FuzzyDatabase implements Serializable {
 				for (String token : groupTokens) {
 					if (currPool != null) {
 						HashBucket currBucket = currPool.getHashBucket(token);
+						
 
 						if (currBucket != null) {
 							for (BucketEntry entry : currBucket.getEntries()) {
@@ -537,7 +543,7 @@ public class FuzzyDatabase implements Serializable {
 			Integer idx = entry.getIndex();
 			Map<String, String> matchingRowData = this.sourceDataFrame.get(idx);
 			Double weight = entry.getWeight();
-			matchingRowData.put("Weight", String.format("%.3f", weight));
+			matchingRowData.put("weight", String.format("%.3f", weight));
 			matchingEntries.add(matchingRowData);
 		}
 
