@@ -258,7 +258,7 @@ public class FullVLookUp {
 			// CollisionRearranger.rearrangeCollisions(queryData, resultPairs, diffPercent);
 
 			// After you've built resultPairs:
-			double diffPercent = 0.20; // 20% threshold
+			double diffPercent = 0.05; // threshold
 			CollisionRearranger.rearrangeCollisions(queryData, resultPairs, diffPercent);
 
 			outputResultsMap(resultPairs);

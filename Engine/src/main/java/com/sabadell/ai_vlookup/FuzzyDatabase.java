@@ -524,7 +524,7 @@ public class FuzzyDatabase implements Serializable {
 								increasingFactor = Math.max(increasingFactor, 0);
 
 								Double c_2 = 10.0;
-								Double h = 1.2;
+								Double h = 0.7;
 
 								Double bucketSizeFilter = c_2 / (currBucket.getSize() + h) + 0.5;
 
