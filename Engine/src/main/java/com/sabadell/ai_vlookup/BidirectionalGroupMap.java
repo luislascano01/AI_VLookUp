@@ -445,38 +445,72 @@ public class BidirectionalGroupMap implements Serializable {
 	 * Quick test main
 	 */
 	public static void main(String[] args) throws Exception {
-		if (args.length < 1) {
-			System.out.println("Usage: java BidirectionalGroupMap <yamlFilePath>");
-			return;
-		}
+	    if (args.length < 1) {
+	        System.out.println("Usage: java BidirectionalGroupMap <yamlFilePath>");
+	        return;
+	    }
 
-		// 1) Retrieve the YAML file path from the command-line arguments
-		String yamlFilePath = args[0];
-		File yamlFile = new File(yamlFilePath);
+	    // Retrieve the YAML file path from the command-line arguments
+	    String yamlFilePath = args[0];
+	    File yamlFile = new File(yamlFilePath);
 
-		// 2) Validate the YAML file path
-		if (!yamlFile.exists() || !yamlFile.isFile()) {
-			System.err.println("Invalid YAML file path provided: " + yamlFilePath);
-			return;
-		}
+	    // Validate the YAML file path
+	    if (!yamlFile.exists() || !yamlFile.isFile()) {
+	        System.err.println("Invalid YAML file path provided: " + yamlFilePath);
+	        return;
+	    }
 
-		// 3) Instantiate BidirectionalGroupMap using the provided YAML file
-		BidirectionalGroupMap map = new BidirectionalGroupMap(yamlFile);
+	    // Load the full YAML configuration
+	    Yaml yaml = new Yaml();
+	    Map<String, Object> fullConfig;
+	    try (InputStream is = new FileInputStream(yamlFile)) {
+	        fullConfig = yaml.load(is);
+	    } catch (Exception e) {
+	        System.err.println("Error reading YAML file:\n" + e.toString());
+	        return;
+	    }
 
-		// 4) Generate the LaTeX graph code
-		String latexCode = map.toLatexGraph();
+	    // Extract "FuzzyDatabaseConfig"
+	    Map<String, Object> fuzzyDatabaseConfig = (Map<String, Object>) fullConfig.get("FuzzyDatabaseConfig");
+	    if (fuzzyDatabaseConfig == null) {
+	        System.err.println("Missing 'FuzzyDatabaseConfig' in YAML configuration.");
+	        return;
+	    }
 
-		// 5) Print the LaTeX code to the console
-		System.out.println(latexCode);
+	    // Extract "BackboneConfiguration"
+	    Map<String, Object> backboneConfig = (Map<String, Object>) fuzzyDatabaseConfig.get("BackboneConfiguration");
+	    if (backboneConfig == null) {
+	        System.err.println("Missing 'BackboneConfiguration' in YAML configuration.");
+	        return;
+	    }
 
-		// 6) Optionally, save the LaTeX code to a file
-		String outputPath = "graph_diagram.tex"; // Change as needed
-		try (PrintWriter writer = new PrintWriter(new FileWriter(outputPath))) {
-			writer.write(latexCode);
-			System.out.println("LaTeX code written to: " + outputPath);
-		} catch (IOException e) {
-			System.err.println("Failed to write LaTeX code to file: " + e.getMessage());
-			e.printStackTrace();
-		}
+	    // Save the BackboneConfiguration to a temporary file
+	    File backboneYamlFile = File.createTempFile("backbone_config", ".yaml");
+	    backboneYamlFile.deleteOnExit();
+	    try (PrintWriter writer = new PrintWriter(new FileWriter(backboneYamlFile))) {
+	        yaml.dump(backboneConfig, writer);
+	    } catch (IOException e) {
+	        System.err.println("Error writing BackboneConfiguration to file: " + e.getMessage());
+	        return;
+	    }
+
+	    // Instantiate BidirectionalGroupMap using the extracted Backbone YAML file
+	    BidirectionalGroupMap map = new BidirectionalGroupMap(backboneYamlFile);
+
+	    // Generate the LaTeX graph code
+	    String latexCode = map.toLatexGraph();
+
+	    // Print the LaTeX code to the console
+	    System.out.println(latexCode);
+
+	    // Write the LaTeX code to a file
+	    String outputPath = "graph_diagram.tex";
+	    try (PrintWriter writer = new PrintWriter(new FileWriter(outputPath))) {
+	        writer.write(latexCode);
+	        System.out.println("LaTeX code written to: " + outputPath);
+	    } catch (IOException e) {
+	        System.err.println("Failed to write LaTeX code to file: " + e.getMessage());
+	        e.printStackTrace();
+	    }
 	}
 }
