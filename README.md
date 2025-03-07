@@ -11,9 +11,22 @@ Let’s say we have the following tables: 1.  [Fuzzy_Table](./Sample_Dataset/Pri
 Without getting into deeper details (check documentation for more) the functionality of this program is to perform a many-to-many (in regards to the columns) weighted fuzzy matching per each incomplete entry against a complete or valid reference table.
 
 ## Dependencies and Installation
-You may find them under Engine/pom.xml
 
-You may build the program from source code as a Maven project.
+Verify java version > 1.8
+
+```console
+java -version
+```
+
+Install maven
+
+```console
+brew install maven
+```
+
+The package dependencies may be found under [Engine/pom.xml](./Engine/pom.xml)
+
+You may build the program (JAR) from source code as a Maven project.
 
 ## Example usage
 
