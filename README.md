@@ -1,3 +1,5 @@
+
+
 # AI VLookUp
 
 This project provides a multi-data structure backed approach to tackle efficient fuzzy matching in tables; with its engine backed by HashMaps, Tokenization, Jaccard, and Damerau plus small group sorting this approach is capable of creating its own database for fuzzy look up; which is then used to query itself in order to solve the most optimal mapping between entries of two different tables.
@@ -17,11 +19,64 @@ You may build the program from source code as a Maven project.
 
 Continuing our example from the use case. Let's say we want to find the Customer_ID for each entry in the  [Fuzzy_Table](./Sample_Dataset/Primary_Reference_Table.csv). However, if we see our table there might be values that appear in the incorrect columns. Therefore, we plot the mapping between columns across both tables as below.
 
-<div style="text-align: center;">
+<span id="graph1"></span>
 
   <img src="./Documentation/Images/BidirectionalMapping.png" alt="Description of image" width="70%">
 
-<div style="text-align: center;">
+​			         Graph 1: Default mapping configuration 
+
+## Set-up
+
+### Download code
+
+```console
+git clone https://github.com/luislascano01/AI_VLookUp
+```
+
+```console
+cd AI_VLookUp
+```
+
+### Build JAR
+
+```console
+cd Engine
+mvn clean install
+```
+
+### Custom run configuration
+
+Reference and edit [sample configuration](./Engine/src/main/resources/header_configuration.yaml) according to excel tables to be processed.
+
+This configuration includes header mappings –as seen on the image– as well as excel workbooks paths, operating directory path, and secondary data columnwise RegEx set.
+
+To view sample from terminal:
+
+```yaml
+cat Engine/src/main/resources/header_configuration.yaml
+```
+
+## Execution
+
+### Sample execution
+
+```console
+java -jar Engine/target/ai_vlookup-0.0.1-SNAPSHOT.jar Engine/src/main/resources/header_configuration.yaml
+```
+
+Find output as
+
+```console
+./OperatingDir/results.csv 
+```
+
+### Custom execution
+
+Modify the header_configuration.yaml according to your needs. Refer to [Graph 1](#graph1) to understand the mapping – soft-max is applied to weights. Such [graph](#graph1) corresponds to the mapping of the [sample YAML configuration](./Engine/src/main/resources/header_configuration.yaml); specifically, the "BackboneConfiguration".
+
+```console
+java -jar Engine/target/ai_vlookup-0.0.1-SNAPSHOT.jar custom_config.yaml
+```
 
 ## Copyright Notice
 

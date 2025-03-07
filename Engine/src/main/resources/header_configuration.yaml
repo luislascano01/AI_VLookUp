@@ -35,8 +35,8 @@ FuzzyDatabaseConfig:
     reference_key_col: "Customer_ID"
     target_key_col: "Customer_ID"
   DataToConsume:
-    ReferenceTable: "/Users/luislascano01/Documents/Sabadell/Covenants_Matching/AI_VLookUp/Sample_Dataset/Primary_Reference_Table.xlsx"
-    MessyTable: "/Users/luislascano01/Documents/Sabadell/Covenants_Matching/AI_VLookUp/Sample_Dataset/Secondary_Data.xlsx"
-  OperatingDir: "/Users/luislascano01/Documents/Sabadell/Covenants_Matching/AI_VLookUp/OperatingDir"
+    ReferenceTable: "./Sample_Dataset/Primary_Reference_Table.xlsx"
+    MessyTable: "./Sample_Dataset/Secondary_Data.xlsx"
+  OperatingDir: "./OperatingDir"
   RegexPreprocessing:
     Customer_ID: "((?<![/\\d])\\d+(?![/\\d]))"
