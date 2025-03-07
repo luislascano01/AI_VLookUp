@@ -95,4 +95,4 @@ java -jar Engine/target/ai_vlookup-0.0.1-SNAPSHOT.jar custom_config.yaml
 
 © [2025] [Luis Lascano]. All rights reserved.
 
-No permission is granted to use, copy, modify, or distribute this software and its documentation for any purpose without the express written permission of the copyright holder.
+Open to use as is through instructed installation for personal use. No permission authorized to copy, modify, or distribute this software (or part of it) and its documentation for any purpose without the express written permission of the copyright holder.
