@@ -40,6 +40,8 @@ Continuing our example from the use case. Let's say we want to find the Customer
 
 ## Set-up
 
+For a more detailed guide please check the [User Manual](Documentation/User_Manual.pdf).
+
 ### Download code
 
 ```console
